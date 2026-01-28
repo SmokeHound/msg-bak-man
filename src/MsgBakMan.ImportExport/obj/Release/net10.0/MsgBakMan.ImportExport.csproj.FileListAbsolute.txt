@@ -15,3 +15,4 @@ C:\DEV\msg-bak-man\src\MsgBakMan.ImportExport\obj\Release\net10.0\MsgBakMan.Impo
 C:\DEV\msg-bak-man\src\MsgBakMan.ImportExport\obj\Release\net10.0\refint\MsgBakMan.ImportExport.dll
 C:\DEV\msg-bak-man\src\MsgBakMan.ImportExport\obj\Release\net10.0\MsgBakMan.ImportExport.pdb
 C:\DEV\msg-bak-man\src\MsgBakMan.ImportExport\obj\Release\net10.0\ref\MsgBakMan.ImportExport.dll
+c:\DEV\msg-bak-man\src\MsgBakMan.ImportExport\obj\Release\net10.0\MsgBakMan.ImportExport.sourcelink.json

@@ -13,3 +13,4 @@ C:\DEV\msg-bak-man\src\MsgBakMan.Data\obj\Release\net10.0\MsgBakMan.Data.dll
 C:\DEV\msg-bak-man\src\MsgBakMan.Data\obj\Release\net10.0\refint\MsgBakMan.Data.dll
 C:\DEV\msg-bak-man\src\MsgBakMan.Data\obj\Release\net10.0\MsgBakMan.Data.pdb
 C:\DEV\msg-bak-man\src\MsgBakMan.Data\obj\Release\net10.0\ref\MsgBakMan.Data.dll
+c:\DEV\msg-bak-man\src\MsgBakMan.Data\obj\Release\net10.0\MsgBakMan.Data.sourcelink.json

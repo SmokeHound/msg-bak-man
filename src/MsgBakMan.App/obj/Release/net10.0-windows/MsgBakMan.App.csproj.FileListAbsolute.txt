@@ -217,3 +217,4 @@ C:\DEV\msg-bak-man\src\MsgBakMan.App\obj\Release\net10.0-windows\MsgBakMan.App.p
 C:\DEV\msg-bak-man\src\MsgBakMan.App\obj\Release\net10.0-windows\MsgBakMan.App.genruntimeconfig.cache
 C:\DEV\msg-bak-man\src\MsgBakMan.App\obj\Release\net10.0-windows\ref\MsgBakMan.App.dll
 C:\DEV\msg-bak-man\src\MsgBakMan.App\obj\Release\net10.0-windows\Styles\AppStyles.baml
+c:\DEV\msg-bak-man\src\MsgBakMan.App\obj\Release\net10.0-windows\MsgBakMan.App.sourcelink.json

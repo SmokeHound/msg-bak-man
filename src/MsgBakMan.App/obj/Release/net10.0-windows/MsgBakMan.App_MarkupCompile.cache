@@ -4,16 +4,16 @@
 winexe
 C#
 .cs
-C:\DEV\msg-bak-man\src\MsgBakMan.App\obj\Release\net10.0-windows\
+c:\DEV\msg-bak-man\src\MsgBakMan.App\obj\Release\net10.0-windows\
 MsgBakMan.App
 none
 false
 TRACE;RELEASE;NET;NET10_0;NETCOREAPP;WINDOWS;WINDOWS7_0;NET5_0_OR_GREATER;NET6_0_OR_GREATER;NET7_0_OR_GREATER;NET8_0_OR_GREATER;NET9_0_OR_GREATER;NET10_0_OR_GREATER;NETCOREAPP3_0_OR_GREATER;NETCOREAPP3_1_OR_GREATER;WINDOWS7_0_OR_GREATER
-C:\DEV\msg-bak-man\src\MsgBakMan.App\App.xaml
+c:\DEV\msg-bak-man\src\MsgBakMan.App\App.xaml
 32126569350
 
 9676563448
-2522093543277
+252-1291033650
 AboutWindow.xaml;MainWindow.xaml;Styles\AppStyles.xaml;
 
 False

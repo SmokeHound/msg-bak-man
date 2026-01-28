@@ -8,7 +8,7 @@
     xmlns:ui="http://schemas.modernwpf.com/2019"
         mc:Ignorable="d"
     ui:WindowHelper.UseModernWindowStyle="True"
-        Title="MsgBakMan" Height="600" Width="920" WindowState="Maximized" Icon="Assets/msgbakman.ico">
+        Title="Message Backup Manager" Height="600" Width="920" WindowState="Maximized" Icon="Assets/msgbakman.ico">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
         <conv:EmptyCollectionToVisibilityConverter x:Key="EmptyToVis" />
@@ -25,7 +25,7 @@
             <DockPanel LastChildFill="False">
                 <StackPanel DockPanel.Dock="Left">
                     <TextBlock Text="Message Backup Manager" Style="{StaticResource AppTitleTextStyle}" />
-                    <TextBlock Text="Import, merge, and export SMS backups" Style="{StaticResource AppSubtitleTextStyle}" />
+                    <TextBlock Text="Import, merge, and export SMS backups." Style="{StaticResource AppSubtitleTextStyle}" />
                 </StackPanel>
 
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
@@ -38,7 +38,7 @@
                                       Style="{StaticResource CompactComboBoxStyle}" />
                         </StackPanel>
                     </Border>
-                    <ui:ToggleSwitch Header="Dark" IsOn="{Binding IsDarkTheme, Mode=TwoWay}" Margin="0,0,12,0" VerticalAlignment="Center" />
+                    <ui:ToggleSwitch Header="Dark Mode" IsOn="{Binding IsDarkTheme, Mode=TwoWay}" Margin="0,0,12,0" VerticalAlignment="Center" />
                     <Button Content="About" Style="{StaticResource GhostButtonStyle}" Click="About_Click" />
                 </StackPanel>
             </DockPanel>
@@ -57,7 +57,7 @@
                 <Border Style="{StaticResource CardBorderStyle}">
                     <StackPanel>
                         <TextBlock Text="Project" Style="{StaticResource SectionHeaderTextStyle}" />
-                        <TextBlock Text="Choose where the database + media live." Style="{StaticResource MutedTextStyle}" Margin="0,4,0,0" />
+                        <TextBlock Text="Choose where to store the database + media." Style="{StaticResource MutedTextStyle}" Margin="0,4,0,0" />
 
                         <Border Style="{StaticResource RoundedInputBorderStyle}" Margin="0,12,0,0">
                             <DockPanel LastChildFill="True">
@@ -138,11 +138,11 @@
                                     <TextBlock Text="Conversations" Style="{StaticResource SectionHeaderTextStyle}" />
 
                                     <DockPanel Grid.Row="1" Margin="0,10,0,0" LastChildFill="True">
+                                        <Button DockPanel.Dock="Right" Content="Clear" Style="{StaticResource GhostButtonStyle}" Command="{Binding ClearConversationSearchCommand}" Margin="8,0,0,0" Padding="10,6" MinWidth="52" />
+                                        <Button DockPanel.Dock="Right" Content="Load" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding RefreshConversationsCommand}" Padding="10,6" MinWidth="52" />
                                         <Border Style="{StaticResource RoundedInputBorderStyle}" Margin="0,0,10,0">
                                             <TextBox Style="{StaticResource InputTextBoxStyle}" Text="{Binding ConversationSearch, UpdateSourceTrigger=PropertyChanged}" />
                                         </Border>
-                                        <Button DockPanel.Dock="Right" Content="Clear" Style="{StaticResource GhostButtonStyle}" Command="{Binding ClearConversationSearchCommand}" Margin="10,0,0,0" />
-                                        <Button DockPanel.Dock="Right" Content="Load" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding RefreshConversationsCommand}" Padding="10,6" MinWidth="56" />
                                     </DockPanel>
 
                                     <Grid Grid.Row="2" Margin="0,10,0,0">
@@ -252,7 +252,9 @@
                                                 </Grid.RowDefinitions>
 
                                                 <DockPanel Grid.Row="0" Margin="0,0,0,10" LastChildFill="True">
-                                                    <TextBlock Text="Query" VerticalAlignment="Center" Margin="0,0,10,0" Style="{StaticResource MutedTextStyle}" />
+                                                    <TextBlock DockPanel.Dock="Left" Text="Query" VerticalAlignment="Center" Margin="0,0,10,0" Style="{StaticResource MutedTextStyle}" />
+                                                    <Button DockPanel.Dock="Right" Content="Clear" Style="{StaticResource GhostButtonStyle}" Command="{Binding ClearMessageSearchCommand}" Margin="8,0,0,0" Padding="10,6" MinWidth="52" />
+                                                    <Button DockPanel.Dock="Right" Content="Go" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding SearchMessagesCommand}" Padding="10,6" MinWidth="40" />
                                                     <Border Style="{StaticResource RoundedInputBorderStyle}">
                                                         <TextBox Style="{StaticResource InputTextBoxStyle}" Text="{Binding MessageSearch, UpdateSourceTrigger=PropertyChanged}">
                                                             <TextBox.InputBindings>
@@ -260,8 +262,6 @@
                                                             </TextBox.InputBindings>
                                                         </TextBox>
                                                     </Border>
-                                                    <Button DockPanel.Dock="Right" Content="Clear" Style="{StaticResource GhostButtonStyle}" Command="{Binding ClearMessageSearchCommand}" Margin="10,0,0,0" />
-                                                    <Button DockPanel.Dock="Right" Content="Go" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding SearchMessagesCommand}" />
                                                 </DockPanel>
 
                                                 <Grid Grid.Row="1">

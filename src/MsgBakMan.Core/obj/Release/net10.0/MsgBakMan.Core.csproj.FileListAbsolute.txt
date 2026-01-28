@@ -9,3 +9,4 @@ C:\DEV\msg-bak-man\src\MsgBakMan.Core\obj\Release\net10.0\MsgBakMan.Core.dll
 C:\DEV\msg-bak-man\src\MsgBakMan.Core\obj\Release\net10.0\refint\MsgBakMan.Core.dll
 C:\DEV\msg-bak-man\src\MsgBakMan.Core\obj\Release\net10.0\MsgBakMan.Core.pdb
 C:\DEV\msg-bak-man\src\MsgBakMan.Core\obj\Release\net10.0\ref\MsgBakMan.Core.dll
+c:\DEV\msg-bak-man\src\MsgBakMan.Core\obj\Release\net10.0\MsgBakMan.Core.sourcelink.json
