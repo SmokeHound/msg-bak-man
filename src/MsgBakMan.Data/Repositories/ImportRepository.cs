@@ -14,7 +14,7 @@ public sealed class ImportRepository
         _conn = conn;
     }
 
-    public long UpsertSource(string path, long fileSize, string? fileSha256)
+    public long UpsertSource(string path, long fileSize, string? fileSha256, SqliteTransaction? transaction = null)
     {
         return _conn.ExecuteScalar<long>(@"
 INSERT INTO sources(path, imported_utc, file_size, file_sha256)
@@ -26,15 +26,33 @@ RETURNING source_id;
             t = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
             size = fileSize,
             sha = fileSha256
-        });
+        }, transaction);
     }
 
-    public long UpsertSms(long sourceId, SmsMessage sms)
+    public void UpdateSourceSha256(long sourceId, string fileSha256, SqliteTransaction? transaction = null)
+    {
+        _conn.Execute(@"
+UPDATE sources
+SET file_sha256 = @sha
+WHERE source_id = @id;
+", new { id = sourceId, sha = fileSha256 }, transaction);
+    }
+
+    public ImportSession BeginImportSession()
+    {
+        // One long-running transaction for the whole import is the biggest perf win.
+        // We also tune a couple of safe PRAGMAs (no durability changes).
+        return new ImportSession(_conn);
+    }
+
+    public long UpsertSms(long sourceId, SmsMessage sms, SqliteTransaction? transaction = null)
     {
         var fp = MessageFingerprint.ForSms(sms);
         var fpv = MessageFingerprint.Version;
 
-        using var tx = _conn.BeginTransaction();
+        var ownsTransaction = transaction is null;
+        using var tx = ownsTransaction ? _conn.BeginTransaction() : null;
+        var effectiveTx = transaction ?? tx!;
 
         var messageId = _conn.ExecuteScalar<long>(@"
 INSERT INTO message(transport, box, date_ms, date_sent_ms, read, seen, source_id, fingerprint_version, fingerprint)
@@ -53,7 +71,7 @@ RETURNING message_id;
             source_id = sourceId,
             fpv,
             fp
-        }, tx);
+    }, effectiveTx);
 
         _conn.Execute(@"
 INSERT INTO sms(message_id, address_raw, address_norm, protocol, subject, body, service_center, read, status, locked, raw_attrs_json)
@@ -82,15 +100,18 @@ ON CONFLICT(message_id) DO UPDATE SET
             status = sms.Status,
                         locked = sms.Locked,
                         raw = sms.RawAttributesJson
-        }, tx);
+        }, effectiveTx);
 
-        tx.Commit();
+        if (ownsTransaction)
+        {
+            tx!.Commit();
+        }
         return messageId;
     }
 
-    public long UpsertMediaBlob(MediaBlobRef blob)
+    public void UpsertMediaBlob(MediaBlobRef blob, SqliteTransaction? transaction = null)
     {
-        return _conn.ExecuteScalar<long>(@"
+        _conn.Execute(@"
 INSERT INTO media_blob(sha256, size_bytes, mime_type, extension, rel_path)
 VALUES (@sha, @size, @mime, @ext, @path)
 ON CONFLICT(sha256) DO UPDATE SET
@@ -98,7 +119,6 @@ ON CONFLICT(sha256) DO UPDATE SET
   mime_type = COALESCE(media_blob.mime_type, excluded.mime_type),
   extension = COALESCE(media_blob.extension, excluded.extension),
     rel_path = excluded.rel_path
-RETURNING 1;
 ", new
         {
             sha = blob.Sha256Hex,
@@ -106,15 +126,17 @@ RETURNING 1;
             mime = blob.MimeType,
             ext = blob.Extension,
             path = blob.RelativePath
-        });
+        }, transaction);
     }
 
-    public long UpsertMms(long sourceId, MmsMessage mms)
+    public long UpsertMms(long sourceId, MmsMessage mms, SqliteTransaction? transaction = null)
     {
         var fp = MessageFingerprint.ForMms(mms);
         var fpv = MessageFingerprint.Version;
 
-        using var tx = _conn.BeginTransaction();
+        var ownsTransaction = transaction is null;
+        using var tx = ownsTransaction ? _conn.BeginTransaction() : null;
+        var effectiveTx = transaction ?? tx!;
 
         var messageId = _conn.ExecuteScalar<long>(@"
 INSERT INTO message(transport, box, date_ms, date_sent_ms, read, seen, source_id, fingerprint_version, fingerprint)
@@ -135,7 +157,7 @@ RETURNING message_id;
             source_id = sourceId,
             fpv,
             fp
-        }, tx);
+    }, effectiveTx);
 
         _conn.Execute(@"
 INSERT INTO mms(message_id, address_raw, address_norm, m_id, ct_t, sub, text_only, locked, raw_attrs_json)
@@ -160,7 +182,7 @@ ON CONFLICT(message_id) DO UPDATE SET
             text_only = mms.TextOnly,
                         locked = mms.Locked,
                         raw = mms.RawAttributesJson
-        }, tx);
+    }, effectiveTx);
 
         foreach (var addr in mms.Addresses)
         {
@@ -175,7 +197,7 @@ VALUES (@message_id, @type, @address_raw, @address_norm, @charset, @raw);
                 address_norm = addr.AddressNorm,
                 charset = addr.Charset,
                 raw = addr.RawAttributesJson
-            }, tx);
+            }, effectiveTx);
         }
 
         foreach (var part in mms.Parts)
@@ -183,7 +205,7 @@ VALUES (@message_id, @type, @address_raw, @address_norm, @charset, @raw);
             var pf = MessageFingerprint.PartFingerprint(part);
             if (part.Blob is not null)
             {
-                UpsertMediaBlob(part.Blob);
+                UpsertMediaBlob(part.Blob, effectiveTx);
             }
 
             _conn.Execute(@"
@@ -209,10 +231,64 @@ VALUES (
                 data_size = part.Blob?.SizeBytes,
                                 pf,
                                 raw = part.RawAttributesJson
-            }, tx);
+            }, effectiveTx);
         }
 
-        tx.Commit();
+        if (ownsTransaction)
+        {
+            tx!.Commit();
+        }
         return messageId;
+    }
+
+    public sealed class ImportSession : IDisposable
+    {
+        private readonly SqliteConnection _conn;
+        private readonly int _oldTempStore;
+        private readonly int _oldCacheSize;
+        private readonly long _oldMmapSize;
+        private bool _committed;
+
+        public SqliteTransaction Transaction { get; }
+
+        public ImportSession(SqliteConnection conn)
+        {
+            _conn = conn;
+
+            _oldTempStore = _conn.ExecuteScalar<int>("PRAGMA temp_store;");
+            _oldCacheSize = _conn.ExecuteScalar<int>("PRAGMA cache_size;");
+            _oldMmapSize = _conn.ExecuteScalar<long>("PRAGMA mmap_size;");
+
+            // Safe performance tweaks.
+            _conn.Execute("PRAGMA temp_store=MEMORY;");
+            _conn.Execute("PRAGMA cache_size=-20000;");
+            _conn.Execute("PRAGMA mmap_size=268435456;");
+
+            Transaction = _conn.BeginTransaction();
+        }
+
+        public void Commit()
+        {
+            Transaction.Commit();
+            _committed = true;
+        }
+
+        public void Dispose()
+        {
+            try
+            {
+                if (!_committed)
+                {
+                    Transaction.Rollback();
+                }
+            }
+            finally
+            {
+                Transaction.Dispose();
+                _conn.Execute($"PRAGMA temp_store={_oldTempStore};");
+                _conn.Execute($"PRAGMA cache_size={_oldCacheSize};");
+                _conn.Execute($"PRAGMA mmap_size={_oldMmapSize};");
+            }
+        }
     }
 }

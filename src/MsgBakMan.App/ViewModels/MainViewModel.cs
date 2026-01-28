@@ -180,10 +180,13 @@ public partial class MainViewModel : ObservableObject
 
             var maintenance = new ConversationMaintenance(conn);
 
-            var progress = new Progress<string>(AppendLog);
-            foreach (var file in ofd.FileNames)
+            var files = ofd.FileNames;
+            var total = files.Length;
+            for (var i = 0; i < total; i++)
             {
-                await importer.ImportAsync(file, progress, ct);
+                var index = i + 1;
+                var perFileProgress = new Progress<string>(msg => AppendLog($"[{index}/{total}] {msg}"));
+                await importer.ImportAsync(files[i], perFileProgress, ct);
             }
 
             maintenance.BackfillConversations();

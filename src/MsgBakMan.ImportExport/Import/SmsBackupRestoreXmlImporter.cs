@@ -1,5 +1,5 @@
 using System.Globalization;
-using System.Security.Cryptography;
+using System.Diagnostics;
 using System.Text.Json;
 using System.Xml;
 using MsgBakMan.Core.Models;
@@ -24,10 +24,15 @@ public sealed class SmsBackupRestoreXmlImporter
     public async Task ImportAsync(string xmlPath, IProgress<string>? progress, CancellationToken cancellationToken)
     {
         var fi = new FileInfo(xmlPath);
-        var sha = ComputeFileSha256(xmlPath);
-        var sourceId = _repo.UpsertSource(fi.FullName, fi.Length, sha);
+        using var session = _repo.BeginImportSession();
+        var sourceId = _repo.UpsertSource(fi.FullName, fi.Length, null, session.Transaction);
 
         progress?.Report($"Importing {fi.Name}...");
+
+        var stopwatch = Stopwatch.StartNew();
+        long lastReportMs = 0;
+        long smsCount = 0;
+        long mmsCount = 0;
 
         var settings = new XmlReaderSettings
         {
@@ -39,7 +44,8 @@ public sealed class SmsBackupRestoreXmlImporter
         };
 
         await using var stream = new FileStream(xmlPath, FileMode.Open, FileAccess.Read, FileShare.Read, 1024 * 64, useAsync: true);
-        using var reader = XmlReader.Create(stream, settings);
+        using var hashingStream = new Sha256HashingReadStream(stream);
+        using var reader = XmlReader.Create(hashingStream, settings);
 
         while (await reader.ReadAsync())
         {
@@ -53,14 +59,40 @@ public sealed class SmsBackupRestoreXmlImporter
             if (reader.Name.Equals("sms", StringComparison.OrdinalIgnoreCase))
             {
                 var sms = ReadSms(reader);
-                _repo.UpsertSms(sourceId, sms);
+                _repo.UpsertSms(sourceId, sms, session.Transaction);
+                smsCount++;
             }
             else if (reader.Name.Equals("mms", StringComparison.OrdinalIgnoreCase))
             {
                 var mms = await ReadMmsAsync(reader, cancellationToken);
-                _repo.UpsertMms(sourceId, mms);
+                _repo.UpsertMms(sourceId, mms, session.Transaction);
+                mmsCount++;
+            }
+
+            if (progress is not null)
+            {
+                var elapsedMs = stopwatch.ElapsedMilliseconds;
+                if (elapsedMs - lastReportMs >= 500)
+                {
+                    lastReportMs = elapsedMs;
+                    var total = smsCount + mmsCount;
+                    var rate = elapsedMs > 0 ? (total * 1000.0 / elapsedMs) : 0;
+
+                    string pctText = string.Empty;
+                    if (fi.Length > 0)
+                    {
+                        var pct = Math.Clamp(stream.Position / (double)fi.Length, 0.0, 1.0) * 100.0;
+                        pctText = $" • {pct:0}%";
+                    }
+
+                    progress.Report($"Importing {fi.Name}... {total:n0} msgs ({smsCount:n0} SMS, {mmsCount:n0} MMS) • {rate:0} msg/s{pctText}");
+                }
             }
         }
+
+        var sha = hashingStream.GetHashHexLower();
+        _repo.UpdateSourceSha256(sourceId, sha, session.Transaction);
+        session.Commit();
 
         progress?.Report($"Imported {fi.Name}");
     }
@@ -234,11 +266,100 @@ public sealed class SmsBackupRestoreXmlImporter
         return long.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture, out var v) ? v : null;
     }
 
-    private static string ComputeFileSha256(string path)
+    private sealed class Sha256HashingReadStream : Stream
     {
-        using var fs = File.OpenRead(path);
-        using var sha = SHA256.Create();
-        var hash = sha.ComputeHash(fs);
-        return Convert.ToHexString(hash).ToLowerInvariant();
+        private readonly Stream _inner;
+        private readonly System.Security.Cryptography.IncrementalHash _hash;
+        private bool _finalized;
+
+        public Sha256HashingReadStream(Stream inner)
+        {
+            _inner = inner;
+            _hash = System.Security.Cryptography.IncrementalHash.CreateHash(System.Security.Cryptography.HashAlgorithmName.SHA256);
+        }
+
+        public string GetHashHexLower()
+        {
+            if (_finalized)
+            {
+                throw new InvalidOperationException("Hash already finalized.");
+            }
+
+            _finalized = true;
+            var bytes = _hash.GetHashAndReset();
+            return Convert.ToHexString(bytes).ToLowerInvariant();
+        }
+
+        public override bool CanRead => _inner.CanRead;
+        public override bool CanSeek => false;
+        public override bool CanWrite => false;
+        public override long Length => throw new NotSupportedException();
+
+        public override long Position
+        {
+            get => throw new NotSupportedException();
+            set => throw new NotSupportedException();
+        }
+
+        public override void Flush() => _inner.Flush();
+
+        public override int Read(byte[] buffer, int offset, int count)
+        {
+            var read = _inner.Read(buffer, offset, count);
+            if (read > 0)
+            {
+                _hash.AppendData(buffer.AsSpan(offset, read));
+            }
+            return read;
+        }
+
+        public override int Read(Span<byte> buffer)
+        {
+            var read = _inner.Read(buffer);
+            if (read > 0)
+            {
+                _hash.AppendData(buffer[..read]);
+            }
+            return read;
+        }
+
+        public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        {
+            var read = await _inner.ReadAsync(buffer, offset, count, cancellationToken).ConfigureAwait(false);
+            if (read > 0)
+            {
+                _hash.AppendData(buffer.AsSpan(offset, read));
+            }
+            return read;
+        }
+
+        public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
+        {
+            var read = await _inner.ReadAsync(buffer, cancellationToken).ConfigureAwait(false);
+            if (read > 0)
+            {
+                _hash.AppendData(buffer.Span[..read]);
+            }
+            return read;
+        }
+
+        public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+        public override void SetLength(long value) => throw new NotSupportedException();
+        public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _hash.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        public override async ValueTask DisposeAsync()
+        {
+            _hash.Dispose();
+            await base.DisposeAsync().ConfigureAwait(false);
+        }
     }
 }
