@@ -1,0 +1,4 @@
+C:\DEV\msg-bak-man\tools\IconGen\obj\Debug\net9.0\IconGen.GeneratedMSBuildEditorConfig.editorconfig
+C:\DEV\msg-bak-man\tools\IconGen\obj\Debug\net9.0\IconGen.AssemblyInfoInputs.cache
+C:\DEV\msg-bak-man\tools\IconGen\obj\Debug\net9.0\IconGen.AssemblyInfo.cs
+C:\DEV\msg-bak-man\tools\IconGen\obj\Debug\net9.0\IconGen.csproj.CoreCompileInputs.cache

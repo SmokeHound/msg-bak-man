@@ -1,0 +1,12 @@
+C:\DEV\msg-bak-man\src\MsgBakMan.Core\bin\Release\net9.0\MsgBakMan.Core.deps.json
+C:\DEV\msg-bak-man\src\MsgBakMan.Core\bin\Release\net9.0\MsgBakMan.Core.dll
+C:\DEV\msg-bak-man\src\MsgBakMan.Core\bin\Release\net9.0\MsgBakMan.Core.pdb
+C:\DEV\msg-bak-man\src\MsgBakMan.Core\obj\Release\net9.0\MsgBakMan.Core.csproj.AssemblyReference.cache
+C:\DEV\msg-bak-man\src\MsgBakMan.Core\obj\Release\net9.0\MsgBakMan.Core.GeneratedMSBuildEditorConfig.editorconfig
+C:\DEV\msg-bak-man\src\MsgBakMan.Core\obj\Release\net9.0\MsgBakMan.Core.AssemblyInfoInputs.cache
+C:\DEV\msg-bak-man\src\MsgBakMan.Core\obj\Release\net9.0\MsgBakMan.Core.AssemblyInfo.cs
+C:\DEV\msg-bak-man\src\MsgBakMan.Core\obj\Release\net9.0\MsgBakMan.Core.csproj.CoreCompileInputs.cache
+C:\DEV\msg-bak-man\src\MsgBakMan.Core\obj\Release\net9.0\MsgBakMan.Core.dll
+C:\DEV\msg-bak-man\src\MsgBakMan.Core\obj\Release\net9.0\refint\MsgBakMan.Core.dll
+C:\DEV\msg-bak-man\src\MsgBakMan.Core\obj\Release\net9.0\MsgBakMan.Core.pdb
+C:\DEV\msg-bak-man\src\MsgBakMan.Core\obj\Release\net9.0\ref\MsgBakMan.Core.dll

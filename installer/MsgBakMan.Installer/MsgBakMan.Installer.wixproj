@@ -1,0 +1,32 @@
+<Project Sdk="WixToolset.Sdk/6.0.2">
+  <PropertyGroup>
+    <OutputType>Package</OutputType>
+    <Platform>x64</Platform>
+    <InstallerPlatform>x64</InstallerPlatform>
+
+    <ProductName>MsgBakMan</ProductName>
+    <Manufacturer>MsgBakMan</Manufacturer>
+    <ProductVersion>1.0.0</ProductVersion>
+
+    <DefineConstants>ProductName=$(ProductName);Manufacturer=$(Manufacturer);ProductVersion=$(ProductVersion)</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="WixToolset.UI.wixext" Version="6.0.2" />
+    <PackageReference Include="WixToolset.Util.wixext" Version="6.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\MsgBakMan.App\MsgBakMan.App.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <BindPath Include="$(MSBuildProjectDirectory)\..\..\src\MsgBakMan.App\bin\$(Configuration)\net10.0-windows">
+      <BindName>App</BindName>
+    </BindPath>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="License-en.rtf" />
+  </ItemGroup>
+</Project>
