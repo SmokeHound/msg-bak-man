@@ -114,7 +114,7 @@ namespace MsgBakMan.App {
                 return;
             }
             _contentLoaded = true;
-            System.Uri resourceLocater = new System.Uri("/MsgBakMan.App;V1.0.0.0;component/aboutwindow.xaml", System.UriKind.Relative);
+            System.Uri resourceLocater = new System.Uri("/MsgBakMan.App;component/aboutwindow.xaml", System.UriKind.Relative);
             
             #line 1 "..\..\..\AboutWindow.xaml"
             System.Windows.Application.LoadComponent(this, resourceLocater);
