@@ -62,7 +62,19 @@ public partial class MainViewModel : ObservableObject
 
     public ObservableCollection<ConversationListItem> Conversations { get; } = new();
 
-	public IReadOnlyList<string> AccentPalettes { get; } = new[] { "Blue", "Emerald", "Violet" };
+    public IReadOnlyList<string> AccentPalettes { get; } = new[]
+    {
+        "Blue",
+        "Cyan",
+        "Emerald",
+        "Lime",
+        "Amber",
+        "Orange",
+        "Red",
+        "Rose",
+        "Violet",
+        "Slate"
+    };
 
     [ObservableProperty]
     private ConversationListItem? _selectedConversation;
@@ -113,8 +125,20 @@ public partial class MainViewModel : ObservableObject
         return palette.Trim().ToLowerInvariant() switch
         {
             "blue" => "Blue",
+            "cyan" => "Cyan",
+            "teal" => "Cyan",
             "emerald" => "Emerald",
             "green" => "Emerald",
+            "lime" => "Lime",
+            "amber" => "Amber",
+            "yellow" => "Amber",
+            "orange" => "Orange",
+            "red" => "Red",
+            "rose" => "Rose",
+            "pink" => "Rose",
+            "slate" => "Slate",
+            "gray" => "Slate",
+            "grey" => "Slate",
             "violet" => "Violet",
             "purple" => "Violet",
             _ => "Blue"

@@ -115,8 +115,20 @@ public partial class App : System.Windows.Application
 		return palette.Trim().ToLowerInvariant() switch
 		{
 			"blue" => "Blue",
+			"cyan" => "Cyan",
+			"teal" => "Cyan",
 			"emerald" => "Emerald",
 			"green" => "Emerald",
+			"lime" => "Lime",
+			"amber" => "Amber",
+			"yellow" => "Amber",
+			"orange" => "Orange",
+			"red" => "Red",
+			"rose" => "Rose",
+			"pink" => "Rose",
+			"slate" => "Slate",
+			"gray" => "Slate",
+			"grey" => "Slate",
 			"violet" => "Violet",
 			"purple" => "Violet",
 			_ => "Blue"
@@ -136,6 +148,13 @@ public partial class App : System.Windows.Application
 		// Dark theme needs brighter accents.
 		return (theme, palette) switch
 		{
+			(ApplicationTheme.Dark, "Cyan") => new(
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FF22D3EE"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FF06B6D4"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FF0891B2"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#1A22D3EE"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#2422D3EE"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#2F22D3EE")),
 			(ApplicationTheme.Dark, "Emerald") => new(
 				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FF34D399"),
 				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FF10B981"),
@@ -143,6 +162,48 @@ public partial class App : System.Windows.Application
 				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#1A34D399"),
 				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#2434D399"),
 				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#2F34D399")),
+			(ApplicationTheme.Dark, "Lime") => new(
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFA3E635"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FF84CC16"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FF65A30D"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#1AA3E635"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#24A3E635"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#2FA3E635")),
+			(ApplicationTheme.Dark, "Amber") => new(
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFFBBF24"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFF59E0B"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFD97706"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#1AFBBF24"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#24FBBF24"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#2FFBBF24")),
+			(ApplicationTheme.Dark, "Orange") => new(
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFFB923C"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFF97316"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFEA580C"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#1AFB923C"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#24FB923C"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#2FFB923C")),
+			(ApplicationTheme.Dark, "Red") => new(
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFF87171"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFEF4444"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFDC2626"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#1AF87171"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#24F87171"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#2FF87171")),
+			(ApplicationTheme.Dark, "Rose") => new(
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFFB7185"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFF43F5E"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFE11D48"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#1AFB7185"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#24FB7185"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#2FFB7185")),
+			(ApplicationTheme.Dark, "Slate") => new(
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFCBD5E1"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FF94A3B8"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FF64748B"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#1ACBD5E1"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#24CBD5E1"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#2FCBD5E1")),
 			(ApplicationTheme.Dark, "Violet") => new(
 				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFA78BFA"),
 				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FF8B5CF6"),
@@ -158,6 +219,13 @@ public partial class App : System.Windows.Application
 				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#2460A5FA"),
 				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#2F60A5FA")),
 
+			(ApplicationTheme.Light, "Cyan") => new(
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FF06B6D4"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FF0891B2"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FF0E7490"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#1406B6D4"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#1F06B6D4"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#2A06B6D4")),
 			(ApplicationTheme.Light, "Emerald") => new(
 				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FF10B981"),
 				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FF059669"),
@@ -165,6 +233,48 @@ public partial class App : System.Windows.Application
 				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#1410B981"),
 				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#1F10B981"),
 				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#2A10B981")),
+			(ApplicationTheme.Light, "Lime") => new(
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FF84CC16"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FF65A30D"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FF4D7C0F"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#1484CC16"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#1F84CC16"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#2A84CC16")),
+			(ApplicationTheme.Light, "Amber") => new(
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFF59E0B"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFD97706"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFB45309"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#14F59E0B"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#1FF59E0B"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#2AF59E0B")),
+			(ApplicationTheme.Light, "Orange") => new(
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFF97316"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFEA580C"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFC2410C"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#14F97316"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#1FF97316"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#2AF97316")),
+			(ApplicationTheme.Light, "Red") => new(
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFEF4444"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFDC2626"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFB91C1C"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#14EF4444"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#1FEF4444"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#2AEF4444")),
+			(ApplicationTheme.Light, "Rose") => new(
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFF43F5E"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFE11D48"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFBE123C"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#14F43F5E"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#1FF43F5E"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#2AF43F5E")),
+			(ApplicationTheme.Light, "Slate") => new(
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FF334155"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FF1F2937"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FF111827"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#14334155"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#1F334155"),
+				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#2A334155")),
 			(ApplicationTheme.Light, "Violet") => new(
 				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FF7C3AED"),
 				(System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FF6D28D9"),
