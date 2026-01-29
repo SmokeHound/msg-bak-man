@@ -87,7 +87,7 @@
                         <Button Content="Export merged XML" Style="{StaticResource PrimaryButtonStyle}" Margin="0,10,0,0" Command="{Binding ExportXmlCommand}" IsEnabled="{Binding IsNotBusy}" />
 
                         <DockPanel Margin="0,12,0,0" LastChildFill="True">
-                            <Button DockPanel.Dock="Right" Content="Refresh" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding RefreshConversationsCommand}" IsEnabled="{Binding IsNotBusy}" />
+                            <Button DockPanel.Dock="Right" Content="Refresh" Padding="14,6" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding RefreshConversationsCommand}" IsEnabled="{Binding IsNotBusy}" />
                             <TextBlock Text="{Binding BusyText}" VerticalAlignment="Center" Style="{StaticResource MutedTextStyle}" Margin="0,0,10,0" />
                         </DockPanel>
                     </StackPanel>
