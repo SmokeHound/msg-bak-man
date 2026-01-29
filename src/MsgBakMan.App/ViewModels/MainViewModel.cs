@@ -1,5 +1,6 @@
 using System.IO;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Text;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -29,6 +30,11 @@ public partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     private string _projectFolder = GetDefaultProjectFolder();
+
+    partial void OnProjectFolderChanged(string value)
+    {
+        OpenProjectFolderCommand.NotifyCanExecuteChanged();
+    }
 
     [ObservableProperty]
     private bool _isDarkTheme;
@@ -175,6 +181,25 @@ public partial class MainViewModel : ObservableObject
         {
             ProjectFolder = dlg.SelectedPath;
         }
+    }
+
+    private bool CanOpenProjectFolder()
+        => !string.IsNullOrWhiteSpace(ProjectFolder) && Directory.Exists(ProjectFolder);
+
+    [RelayCommand(CanExecute = nameof(CanOpenProjectFolder))]
+    private void OpenProjectFolder()
+    {
+        var path = ProjectFolder;
+        if (string.IsNullOrWhiteSpace(path) || !Directory.Exists(path))
+        {
+            return;
+        }
+
+        Process.Start(new ProcessStartInfo
+        {
+            FileName = path,
+            UseShellExecute = true
+        });
     }
 
     [RelayCommand]

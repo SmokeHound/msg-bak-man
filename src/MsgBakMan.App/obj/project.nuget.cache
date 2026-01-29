@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "kGzudlQ8kl0=",
+  "dgSpecHash": "sA++VXt1C/0=",
   "success": true,
-  "projectFilePath": "C:\\DEV\\msg-bak-man\\src\\MsgBakMan.App\\MsgBakMan.App.csproj",
+  "projectFilePath": "c:\\DEV\\msg-bak-man\\src\\MsgBakMan.App\\MsgBakMan.App.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\joshb\\.nuget\\packages\\communitytoolkit.mvvm\\8.4.0\\communitytoolkit.mvvm.8.4.0.nupkg.sha512",
     "C:\\Users\\joshb\\.nuget\\packages\\dapper\\2.1.66\\dapper.2.1.66.nupkg.sha512",

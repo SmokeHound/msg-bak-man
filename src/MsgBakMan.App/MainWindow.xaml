@@ -12,6 +12,7 @@
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
         <conv:EmptyCollectionToVisibilityConverter x:Key="EmptyToVis" />
+        <conv:ZeroCountToVisibilityConverter x:Key="ZeroToVis" />
     </Window.Resources>
     <Grid Background="{DynamicResource AppBackgroundBrush}" Margin="14">
         <Grid.RowDefinitions>
@@ -67,6 +68,13 @@
                         </Border>
 
                         <TextBlock Text="DB: db/messages.sqlite • Media: media/blobs/" Style="{StaticResource MutedTextStyle}" Margin="0,10,0,0" />
+
+                        <DockPanel Margin="0,12,0,0" LastChildFill="False">
+                            <Button DockPanel.Dock="Right"
+                                    Content="  Open folder  "
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    Command="{Binding OpenProjectFolderCommand}" />
+                        </DockPanel>
                     </StackPanel>
                 </Border>
 
@@ -174,7 +182,8 @@
                                                 BorderBrush="{DynamicResource CardBorderBrush}"
                                                 BorderThickness="1"
                                                 CornerRadius="12"
-                                                Visibility="{Binding Conversations, Converter={StaticResource EmptyToVis}}">
+                                            Visibility="{Binding ConversationCount, Converter={StaticResource ZeroToVis}}"
+                                            IsHitTestVisible="False">
                                             <TextBlock Text="No conversations yet.\nImport XML and press Refresh."
                                                        TextAlignment="Center"
                                                        Style="{StaticResource MutedTextStyle}"
@@ -235,7 +244,8 @@
                                                         BorderBrush="{DynamicResource CardBorderBrush}"
                                                         BorderThickness="1"
                                                         CornerRadius="12"
-                                                        Visibility="{Binding ConversationMessages, Converter={StaticResource EmptyToVis}}">
+                                                    Visibility="{Binding ConversationMessageCount, Converter={StaticResource ZeroToVis}}"
+                                                    IsHitTestVisible="False">
                                                     <TextBlock Text="Select a conversation to view messages."
                                                                TextAlignment="Center"
                                                                Style="{StaticResource MutedTextStyle}"
@@ -287,7 +297,8 @@
                                                             BorderBrush="{DynamicResource CardBorderBrush}"
                                                             BorderThickness="1"
                                                             CornerRadius="12"
-                                                            Visibility="{Binding SearchResults, Converter={StaticResource EmptyToVis}}">
+                                                            Visibility="{Binding SearchResultCount, Converter={StaticResource ZeroToVis}}"
+                                                            IsHitTestVisible="False">
                                                         <TextBlock Text="No search results."
                                                                    TextAlignment="Center"
                                                                    Style="{StaticResource MutedTextStyle}"
