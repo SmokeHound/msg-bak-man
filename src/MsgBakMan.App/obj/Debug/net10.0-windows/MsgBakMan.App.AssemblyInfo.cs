@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MsgBakMan.App")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cf9e40757d660a3a4a01e8fdbbc76ee21f6f7607")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c3ada9b26279ad99439555be3df1c77ad8e2913e")]
 [assembly: System.Reflection.AssemblyProductAttribute("MsgBakMan.App")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MsgBakMan.App")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -2852,11 +2852,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "c:\\DEV\\msg-bak-man\\src\\MsgBakMan.App\\MsgBakMan.App.csproj",
+      "projectUniqueName": "C:\\DEV\\msg-bak-man\\src\\MsgBakMan.App\\MsgBakMan.App.csproj",
       "projectName": "MsgBakMan.App",
-      "projectPath": "c:\\DEV\\msg-bak-man\\src\\MsgBakMan.App\\MsgBakMan.App.csproj",
+      "projectPath": "C:\\DEV\\msg-bak-man\\src\\MsgBakMan.App\\MsgBakMan.App.csproj",
       "packagesPath": "C:\\Users\\joshb\\.nuget\\packages\\",
-      "outputPath": "c:\\DEV\\msg-bak-man\\src\\MsgBakMan.App\\obj\\",
+      "outputPath": "C:\\DEV\\msg-bak-man\\src\\MsgBakMan.App\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -2877,14 +2877,14 @@
         "net10.0-windows7.0": {
           "targetAlias": "net10.0-windows",
           "projectReferences": {
-            "c:\\DEV\\msg-bak-man\\src\\MsgBakMan.Core\\MsgBakMan.Core.csproj": {
-              "projectPath": "c:\\DEV\\msg-bak-man\\src\\MsgBakMan.Core\\MsgBakMan.Core.csproj"
+            "C:\\DEV\\msg-bak-man\\src\\MsgBakMan.Core\\MsgBakMan.Core.csproj": {
+              "projectPath": "C:\\DEV\\msg-bak-man\\src\\MsgBakMan.Core\\MsgBakMan.Core.csproj"
             },
-            "c:\\DEV\\msg-bak-man\\src\\MsgBakMan.Data\\MsgBakMan.Data.csproj": {
-              "projectPath": "c:\\DEV\\msg-bak-man\\src\\MsgBakMan.Data\\MsgBakMan.Data.csproj"
+            "C:\\DEV\\msg-bak-man\\src\\MsgBakMan.Data\\MsgBakMan.Data.csproj": {
+              "projectPath": "C:\\DEV\\msg-bak-man\\src\\MsgBakMan.Data\\MsgBakMan.Data.csproj"
             },
-            "c:\\DEV\\msg-bak-man\\src\\MsgBakMan.ImportExport\\MsgBakMan.ImportExport.csproj": {
-              "projectPath": "c:\\DEV\\msg-bak-man\\src\\MsgBakMan.ImportExport\\MsgBakMan.ImportExport.csproj"
+            "C:\\DEV\\msg-bak-man\\src\\MsgBakMan.ImportExport\\MsgBakMan.ImportExport.csproj": {
+              "projectPath": "C:\\DEV\\msg-bak-man\\src\\MsgBakMan.ImportExport\\MsgBakMan.ImportExport.csproj"
             }
           }
         }
