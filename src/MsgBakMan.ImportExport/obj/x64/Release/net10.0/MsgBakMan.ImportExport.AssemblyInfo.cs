@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MsgBakMan.ImportExport")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7909b177ae781749e5c3a9234a7fbe0348e9f356")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f59e4378c70c77e97b13286fec2880d249242448")]
 [assembly: System.Reflection.AssemblyProductAttribute("MsgBakMan.ImportExport")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MsgBakMan.ImportExport")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
