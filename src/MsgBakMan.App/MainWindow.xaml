@@ -87,7 +87,7 @@
                         <Button Content="Export merged XML" Style="{StaticResource PrimaryButtonStyle}" Margin="0,10,0,0" Command="{Binding ExportXmlCommand}" IsEnabled="{Binding IsNotBusy}" />
 
                         <DockPanel Margin="0,12,0,0" LastChildFill="True">
-                            <Button DockPanel.Dock="Right" Content="Refresh" Padding="14,6" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding RefreshConversationsCommand}" IsEnabled="{Binding IsNotBusy}" />
+                            <Button DockPanel.Dock="Right" Content="  Refresh  " Padding="14,6" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding RefreshConversationsCommand}" IsEnabled="{Binding IsNotBusy}" />
                             <TextBlock Text="{Binding BusyText}" VerticalAlignment="Center" Style="{StaticResource MutedTextStyle}" Margin="0,0,10,0" />
                         </DockPanel>
                     </StackPanel>
@@ -198,7 +198,7 @@
                                         </StackPanel>
 
                                         <Button DockPanel.Dock="Right"
-                                                Content="Merge checked"
+                                                Content="  Merge checked  "
                                                 Style="{StaticResource SecondaryButtonStyle}"
                                                 Command="{Binding MergeCheckedConversationsIntoSelectedCommand}"
                                                 IsEnabled="{Binding CanMergeCheckedIntoSelected}" />
@@ -331,7 +331,7 @@
         <Border Grid.Row="2" Style="{StaticResource CardBorderStyle}" Padding="10" Margin="0,14,0,0">
             <DockPanel>
                 <TextBlock Text="{Binding BusyText}" Style="{StaticResource MutedTextStyle}" />
-                <ProgressBar DockPanel.Dock="Right" Width="180" Height="14" IsIndeterminate="True" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}" />
+                <ProgressBar DockPanel.Dock="Left" Width="180" Height="14" IsIndeterminate="True" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}" />
             </DockPanel>
         </Border>
     </Grid>

@@ -1,10 +1,6 @@
 {
   "version": 2,
-<<<<<<< HEAD
-  "dgSpecHash": "ltJzJymIHvk=",
-=======
-  "dgSpecHash": "dojZsFzJylI=",
->>>>>>> 9a95cda5edc938036bd360b9262ba36745b98c64
+  "dgSpecHash": "NijpXCD8TMU=",
   "success": true,
   "projectFilePath": "C:\\DEV\\msg-bak-man\\src\\MsgBakMan.ImportExport\\MsgBakMan.ImportExport.csproj",
   "expectedPackageFiles": [
