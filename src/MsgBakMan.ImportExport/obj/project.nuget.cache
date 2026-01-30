@@ -1,8 +1,12 @@
 {
   "version": 2,
+<<<<<<< HEAD
   "dgSpecHash": "ltJzJymIHvk=",
+=======
+  "dgSpecHash": "dojZsFzJylI=",
+>>>>>>> 9a95cda5edc938036bd360b9262ba36745b98c64
   "success": true,
-  "projectFilePath": "c:\\DEV\\msg-bak-man\\src\\MsgBakMan.ImportExport\\MsgBakMan.ImportExport.csproj",
+  "projectFilePath": "C:\\DEV\\msg-bak-man\\src\\MsgBakMan.ImportExport\\MsgBakMan.ImportExport.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\joshb\\.nuget\\packages\\dapper\\2.1.66\\dapper.2.1.66.nupkg.sha512",
     "C:\\Users\\joshb\\.nuget\\packages\\microsoft.data.sqlite\\10.0.2\\microsoft.data.sqlite.10.0.2.nupkg.sha512",

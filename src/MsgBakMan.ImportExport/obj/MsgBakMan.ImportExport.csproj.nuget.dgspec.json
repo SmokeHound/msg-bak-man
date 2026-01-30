@@ -1,7 +1,7 @@
 {
   "format": 1,
   "restore": {
-    "c:\\DEV\\msg-bak-man\\src\\MsgBakMan.ImportExport\\MsgBakMan.ImportExport.csproj": {}
+    "C:\\DEV\\msg-bak-man\\src\\MsgBakMan.ImportExport\\MsgBakMan.ImportExport.csproj": {}
   },
   "projects": {
     "c:\\DEV\\msg-bak-man\\src\\MsgBakMan.Core\\MsgBakMan.Core.csproj": {
@@ -696,14 +696,14 @@
         }
       }
     },
-    "c:\\DEV\\msg-bak-man\\src\\MsgBakMan.ImportExport\\MsgBakMan.ImportExport.csproj": {
+    "C:\\DEV\\msg-bak-man\\src\\MsgBakMan.ImportExport\\MsgBakMan.ImportExport.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\DEV\\msg-bak-man\\src\\MsgBakMan.ImportExport\\MsgBakMan.ImportExport.csproj",
+        "projectUniqueName": "C:\\DEV\\msg-bak-man\\src\\MsgBakMan.ImportExport\\MsgBakMan.ImportExport.csproj",
         "projectName": "MsgBakMan.ImportExport",
-        "projectPath": "c:\\DEV\\msg-bak-man\\src\\MsgBakMan.ImportExport\\MsgBakMan.ImportExport.csproj",
+        "projectPath": "C:\\DEV\\msg-bak-man\\src\\MsgBakMan.ImportExport\\MsgBakMan.ImportExport.csproj",
         "packagesPath": "C:\\Users\\joshb\\.nuget\\packages\\",
-        "outputPath": "c:\\DEV\\msg-bak-man\\src\\MsgBakMan.ImportExport\\obj\\",
+        "outputPath": "C:\\DEV\\msg-bak-man\\src\\MsgBakMan.ImportExport\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

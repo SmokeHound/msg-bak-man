@@ -1,6 +1,10 @@
 {
   "version": 2,
+<<<<<<< HEAD
   "dgSpecHash": "8DFsXXZPG64=",
+=======
+  "dgSpecHash": "sBzKf3ZDML8=",
+>>>>>>> 9a95cda5edc938036bd360b9262ba36745b98c64
   "success": true,
   "projectFilePath": "c:\\DEV\\msg-bak-man\\src\\MsgBakMan.App\\MsgBakMan.App.csproj",
   "expectedPackageFiles": [
