@@ -1,0 +1,62 @@
+name: .NET Desktop (build)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build (Windows)
+    runs-on: windows-latest
+
+    env:
+      DOTNET_FORMAT_VERSION: "5.1.250801"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Cache NuGet
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.nuget/packages
+            ${{ env.LOCALAPPDATA }}\NuGet\v3-cache
+            ${{ env.LOCALAPPDATA }}\NuGet\plugins-cache
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.sln', '**/*.csproj', '**/Directory.Packages.props', '**/packages.lock.json', '**/NuGet.config', '**/nuget.config') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+
+      - name: Install dotnet-format
+        shell: pwsh
+        run: |
+          $version = "${env:DOTNET_FORMAT_VERSION}"
+          $toolList = dotnet tool list -g
+
+          if ($toolList -match "^dotnet-format\s") {
+            dotnet tool update -g dotnet-format --version $version
+          } else {
+            dotnet tool install -g dotnet-format --version $version
+          }
+
+          "${env:USERPROFILE}\.dotnet\tools" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Restore
+        run: dotnet restore "MsgBakMan.sln"
+
+      - name: Format (verify)
+        run: dotnet format whitespace "MsgBakMan.sln" --verify-no-changes --no-restore
+
+      - name: Build
+        run: dotnet build "MsgBakMan.sln" -c Release --no-restore

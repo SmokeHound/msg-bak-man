@@ -26,7 +26,7 @@ public partial class MainViewModel : ObservableObject
 
         // Initialize from current theme without triggering a save.
         _isDarkTheme = ThemeManager.Current.ApplicationTheme == ApplicationTheme.Dark;
-		_selectedAccentPalette = NormalizeAccentPalette(settings.AccentPalette);
+        _selectedAccentPalette = NormalizeAccentPalette(settings.AccentPalette);
     }
 
     [ObservableProperty]
@@ -40,8 +40,8 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private bool _isDarkTheme;
 
-	[ObservableProperty]
-	private string _selectedAccentPalette = "Blue";
+    [ObservableProperty]
+    private string _selectedAccentPalette = "Blue";
 
     [ObservableProperty]
     private bool _isBusy;

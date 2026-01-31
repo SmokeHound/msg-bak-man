@@ -71,7 +71,7 @@ RETURNING message_id;
             source_id = sourceId,
             fpv,
             fp
-    }, effectiveTx);
+        }, effectiveTx);
 
         _conn.Execute(@"
 INSERT INTO sms(message_id, address_raw, address_norm, protocol, subject, body, service_center, read, status, locked, raw_attrs_json)
@@ -98,8 +98,8 @@ ON CONFLICT(message_id) DO UPDATE SET
             service_center = sms.ServiceCenter,
             read = sms.Read,
             status = sms.Status,
-                        locked = sms.Locked,
-                        raw = sms.RawAttributesJson
+            locked = sms.Locked,
+            raw = sms.RawAttributesJson
         }, effectiveTx);
 
         if (ownsTransaction)
@@ -157,7 +157,7 @@ RETURNING message_id;
             source_id = sourceId,
             fpv,
             fp
-    }, effectiveTx);
+        }, effectiveTx);
 
         _conn.Execute(@"
 INSERT INTO mms(message_id, address_raw, address_norm, m_id, ct_t, sub, text_only, locked, raw_attrs_json)
@@ -174,15 +174,15 @@ ON CONFLICT(message_id) DO UPDATE SET
 ", new
         {
             message_id = messageId,
-                        address_raw = mms.AddressRaw,
-                        address_norm = mms.AddressNorm,
+            address_raw = mms.AddressRaw,
+            address_norm = mms.AddressNorm,
             m_id = mms.MId,
             ct_t = mms.CtT,
             sub = mms.Subject,
             text_only = mms.TextOnly,
-                        locked = mms.Locked,
-                        raw = mms.RawAttributesJson
-    }, effectiveTx);
+            locked = mms.Locked,
+            raw = mms.RawAttributesJson
+        }, effectiveTx);
 
         foreach (var addr in mms.Addresses)
         {
@@ -229,8 +229,8 @@ VALUES (
                 text = part.Text,
                 data_sha256 = part.Blob?.Sha256Hex,
                 data_size = part.Blob?.SizeBytes,
-                                pf,
-                                raw = part.RawAttributesJson
+                pf,
+                raw = part.RawAttributesJson
             }, effectiveTx);
         }
 
