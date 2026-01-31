@@ -19,6 +19,7 @@ namespace MsgBakMan.App.ViewModels;
 public partial class MainViewModel : ObservableObject
 {
     private readonly List<ConversationListItem> _conversationItemsWithHandlers = new();
+    private readonly List<MergeSuggestionItem> _mergeSuggestionItemsWithHandlers = new();
 
     public MainViewModel()
     {
@@ -69,6 +70,9 @@ public partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     private int _mergeSuggestionCount;
+
+    [ObservableProperty]
+    private int _markedMergeCount;
 
     [ObservableProperty]
     private string _mergeSuggestionStatus = string.Empty;
@@ -160,6 +164,12 @@ public partial class MainViewModel : ObservableObject
     partial void OnIsBusyChanged(bool value)
     {
         OnPropertyChanged(nameof(IsNotBusy));
+        AcceptMarkedMergesCommand.NotifyCanExecuteChanged();
+    }
+
+    partial void OnMarkedMergeCountChanged(int value)
+    {
+        AcceptMarkedMergesCommand.NotifyCanExecuteChanged();
     }
 
     partial void OnConversationSearchChanged(string value)
@@ -618,10 +628,7 @@ public partial class MainViewModel : ObservableObject
                         return null;
                     }
 
-                    var hasPlus61 = g.Any(x =>
-                        x.Original.StartsWith("+61", StringComparison.Ordinal)
-                        || x.Original.StartsWith("61", StringComparison.Ordinal)
-                        || x.Original.StartsWith("0061", StringComparison.Ordinal));
+                    var hasPlus61 = g.Any(x => IsPlus61FamilyToken(x.Original));
                     var hasLocal0 = g.Any(x =>
                         x.Original.StartsWith("0", StringComparison.Ordinal)
                         || x.Original.StartsWith("+0", StringComparison.Ordinal));
@@ -630,10 +637,22 @@ public partial class MainViewModel : ObservableObject
                         return null;
                     }
 
+                    var preferredTargetIds = g
+                        .Where(x => IsPlus61FamilyToken(x.Original))
+                        .OrderByDescending(x => IsPlus61Token(x.Original))
+                        .Select(x => x.Conv.ConversationId)
+                        .Distinct()
+                        .ToHashSet();
+
                     var target = uniqueConvs
+                        .Where(x => preferredTargetIds.Contains(x.ConversationId))
                         .OrderByDescending(x => x.MessageCount)
                         .ThenByDescending(x => x.LastDateMs ?? 0)
-                        .First();
+                        .FirstOrDefault()
+                        ?? uniqueConvs
+                            .OrderByDescending(x => x.MessageCount)
+                            .ThenByDescending(x => x.LastDateMs ?? 0)
+                            .First();
 
                     var mergeIds = uniqueConvs
                         .Where(x => x.ConversationId != target.ConversationId)
@@ -655,10 +674,10 @@ public partial class MainViewModel : ObservableObject
                     var details = $"Variants: {string.Join(", ", variants)}\n\n" + string.Join("\n", lines) + $"\n\nTarget: {FormatConversationLabel(target)}";
 
                     return new MergeSuggestionItem(
-                        Title: $"Merge suggested for {g.Key}",
-                        Details: details,
-                        TargetConversationId: target.ConversationId,
-                        MergeConversationIds: mergeIds
+                        title: $"Merge suggested for {g.Key}",
+                        details: details,
+                        targetConversationId: target.ConversationId,
+                        mergeConversationIds: mergeIds
                     );
                 })
                 .Where(x => x is not null)
@@ -666,13 +685,22 @@ public partial class MainViewModel : ObservableObject
                 .OrderBy(x => x.Title, StringComparer.Ordinal)
                 .ToList();
 
+            foreach (var old in _mergeSuggestionItemsWithHandlers)
+            {
+                old.PropertyChanged -= MergeSuggestionItemOnPropertyChanged;
+            }
+            _mergeSuggestionItemsWithHandlers.Clear();
+
             MergeSuggestions.Clear();
             foreach (var s in suggestions)
             {
+                s.PropertyChanged += MergeSuggestionItemOnPropertyChanged;
+                _mergeSuggestionItemsWithHandlers.Add(s);
                 MergeSuggestions.Add(s);
             }
 
             MergeSuggestionCount = MergeSuggestions.Count;
+            MarkedMergeCount = 0;
             MergeSuggestionStatus = MergeSuggestionCount == 0
                 ? "No suggestions found."
                 : $"Found {MergeSuggestionCount:n0} suggested merge(s).";
@@ -680,6 +708,66 @@ public partial class MainViewModel : ObservableObject
             return Task.CompletedTask;
         });
     }
+
+    private void MergeSuggestionItemOnPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(MergeSuggestionItem.IsMarked))
+        {
+            MarkedMergeCount = MergeSuggestions.Count(x => x.IsMarked);
+        }
+    }
+
+    private bool CanAcceptMarkedMerges()
+        => IsNotBusy && MarkedMergeCount > 0;
+
+    [RelayCommand(CanExecute = nameof(CanAcceptMarkedMerges))]
+    private async Task AcceptMarkedMerges()
+    {
+        var marked = MergeSuggestions
+            .Where(x => x.IsMarked)
+            .ToList();
+
+        if (marked.Count == 0)
+        {
+            return;
+        }
+
+        await RunBusyAsync($"Merging {marked.Count:n0} marked suggestion(s)...", ct =>
+        {
+            ct.ThrowIfCancellationRequested();
+            var paths = EnsureProjectInitialized();
+            using var conn = new SqliteConnectionFactory(paths.DbPath).Open();
+            new MigrationRunner().ApplyAll(conn);
+
+            var repo = new ConversationRepository(conn);
+
+            foreach (var suggestion in marked)
+            {
+                ct.ThrowIfCancellationRequested();
+
+                if (suggestion.MergeConversationIds.Count == 0)
+                {
+                    continue;
+                }
+
+                repo.MergeConversations(suggestion.TargetConversationId, suggestion.MergeConversationIds);
+            }
+
+            new ConversationMaintenance(conn).BackfillConversations();
+            return Task.CompletedTask;
+        });
+
+        await RefreshConversations();
+        await RefreshMergeSuggestions();
+    }
+
+    private static bool IsPlus61Token(string original)
+        => original.StartsWith("+61", StringComparison.Ordinal);
+
+    private static bool IsPlus61FamilyToken(string original)
+        => original.StartsWith("+61", StringComparison.Ordinal)
+           || original.StartsWith("61", StringComparison.Ordinal)
+           || original.StartsWith("0061", StringComparison.Ordinal);
 
     [RelayCommand]
     private async Task RepairPhoneNumbers()
@@ -1124,12 +1212,24 @@ public partial class MainViewModel : ObservableObject
                 : (MmsSubject ?? string.Empty);
     }
 
-    public sealed record MergeSuggestionItem(
-        string Title,
-        string Details,
-        long TargetConversationId,
-        IReadOnlyList<long> MergeConversationIds
-    );
+    public sealed partial class MergeSuggestionItem : ObservableObject
+    {
+        public MergeSuggestionItem(string title, string details, long targetConversationId, IReadOnlyList<long> mergeConversationIds)
+        {
+            Title = title;
+            Details = details;
+            TargetConversationId = targetConversationId;
+            MergeConversationIds = mergeConversationIds;
+        }
+
+        public string Title { get; }
+        public string Details { get; }
+        public long TargetConversationId { get; }
+        public IReadOnlyList<long> MergeConversationIds { get; }
+
+        [ObservableProperty]
+        private bool _isMarked;
+    }
 
     private sealed record ConversationWithRecipients(
         long ConversationId,

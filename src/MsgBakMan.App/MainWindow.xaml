@@ -363,6 +363,14 @@
 
                                     <DockPanel Grid.Row="0" LastChildFill="True" Margin="0,0,0,10">
                                         <Button DockPanel.Dock="Right"
+                                            Content="{Binding MarkedMergeCount, StringFormat=Merge marked ({0})}"
+                                            Style="{StaticResource PrimaryButtonStyle}"
+                                            Command="{Binding AcceptMarkedMergesCommand}"
+                                            IsEnabled="{Binding IsNotBusy}"
+                                            Padding="12,8"
+                                            MinWidth="140"
+                                            Margin="10,0,0,0" />
+                                        <Button DockPanel.Dock="Right"
                                                 Content="Refresh"
                                                 Style="{StaticResource SecondaryButtonStyle}"
                                                 Command="{Binding RefreshMergeSuggestionsCommand}"
@@ -396,6 +404,11 @@
                                                                         Padding="12,8"
                                                                         Command="{Binding DataContext.ApplySuggestedMergeCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
                                                                         CommandParameter="{Binding}" />
+                                                                <CheckBox DockPanel.Dock="Right"
+                                                                          IsChecked="{Binding IsMarked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                          VerticalAlignment="Center"
+                                                                          Margin="0,0,10,0"
+                                                                          Content="Mark" />
                                                                 <TextBlock Text="Merges the other conversation(s) into the target."
                                                                            VerticalAlignment="Center"
                                                                            Style="{StaticResource MutedTextStyle}"
