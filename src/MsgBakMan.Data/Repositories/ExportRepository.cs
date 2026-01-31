@@ -113,6 +113,42 @@ WHERE sha256=@sha
 ", new { sha = sha256 });
     }
 
+    public IEnumerable<MediaBlobRow> GetAllMediaBlobs()
+    {
+        return _conn.Query<MediaBlobRow>(@"
+SELECT sha256 AS Sha256,
+       size_bytes AS SizeBytes,
+       mime_type AS MimeType,
+       extension AS Extension,
+       rel_path AS RelativePath
+FROM media_blob
+ORDER BY sha256;
+");
+    }
+
+    public IEnumerable<ConversationMediaBlobRow> GetConversationMediaBlobs()
+    {
+        return _conn.Query<ConversationMediaBlobRow>(@"
+SELECT c.conversation_id AS ConversationId,
+       c.conversation_key AS ConversationKey,
+       c.display_name AS DisplayName,
+       r.address_norm AS RecipientAddressNorm,
+       b.sha256 AS Sha256,
+       b.size_bytes AS SizeBytes,
+       b.mime_type AS MimeType,
+       b.extension AS Extension,
+       b.rel_path AS RelativePath
+FROM mms_part p
+JOIN message m ON m.message_id = p.message_id
+JOIN conversation c ON c.conversation_id = m.conversation_id
+JOIN media_blob b ON b.sha256 = p.data_sha256
+LEFT JOIN conversation_recipient cr ON cr.conversation_id = c.conversation_id
+LEFT JOIN recipient r ON r.recipient_id = cr.recipient_id
+WHERE p.data_sha256 IS NOT NULL
+ORDER BY c.conversation_id, b.sha256;
+");
+    }
+
     public sealed record SmsRow(
         long MessageId,
         int Type,
@@ -171,6 +207,18 @@ WHERE sha256=@sha
     );
 
     public sealed record MediaBlobRow(
+        string Sha256,
+        long SizeBytes,
+        string? MimeType,
+        string? Extension,
+        string RelativePath
+    );
+
+    public sealed record ConversationMediaBlobRow(
+        long ConversationId,
+        string ConversationKey,
+        string? DisplayName,
+        string? RecipientAddressNorm,
         string Sha256,
         long SizeBytes,
         string? MimeType,

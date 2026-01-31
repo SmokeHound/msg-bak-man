@@ -112,12 +112,39 @@ WHERE conversation_id IN @ids;
         tx.Commit();
     }
 
+    public IEnumerable<ConversationRecipientRow> GetConversationRecipients()
+    {
+        return _conn.Query<ConversationRecipientRow>(@"
+SELECT c.conversation_id AS ConversationId,
+       c.conversation_key AS ConversationKey,
+       c.display_name AS DisplayName,
+       CAST(COUNT(m.message_id) AS INTEGER) AS MessageCount,
+       CAST(MAX(m.date_ms) AS INTEGER) AS LastDateMs,
+       r.address_norm AS RecipientAddressNorm
+FROM conversation c
+LEFT JOIN message m ON m.conversation_id = c.conversation_id
+LEFT JOIN conversation_recipient cr ON cr.conversation_id = c.conversation_id
+LEFT JOIN recipient r ON r.recipient_id = cr.recipient_id
+GROUP BY c.conversation_id, c.conversation_key, c.display_name, r.address_norm
+ORDER BY c.conversation_id;
+");
+    }
+
     public sealed record ConversationRow(
         long ConversationId,
         string ConversationKey,
         string? DisplayName,
         long MessageCount,
         long? LastDateMs
+    );
+
+    public sealed record ConversationRecipientRow(
+        long ConversationId,
+        string ConversationKey,
+        string? DisplayName,
+        long MessageCount,
+        long? LastDateMs,
+        string? RecipientAddressNorm
     );
 
     public sealed class MessageRow

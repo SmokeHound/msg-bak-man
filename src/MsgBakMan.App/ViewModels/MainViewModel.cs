@@ -682,6 +682,38 @@ public partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private async Task RepairPhoneNumbers()
+    {
+        await RunBusyAsync("Repairing phone numbers...", ct =>
+        {
+            ct.ThrowIfCancellationRequested();
+
+            var paths = EnsureProjectInitialized();
+            using var conn = new SqliteConnectionFactory(paths.DbPath).Open();
+            new MigrationRunner().ApplyAll(conn);
+
+            var result = new PhoneNormalizationMaintenance(conn).RepairLegacyPlus10Numbers();
+
+            // Rebuild conversations/recipients based on corrected normalized addresses.
+            new ConversationMaintenance(conn).BackfillConversations();
+
+            AppendLog("Phone number repair complete:");
+            AppendLog($"- sms updated: {result.SmsUpdated:n0}");
+            AppendLog($"- mms updated: {result.MmsUpdated:n0}");
+            AppendLog($"- mms_addr updated: {result.MmsAddrUpdated:n0}");
+            AppendLog($"- recipient updated: {result.RecipientsUpdated:n0}");
+            AppendLog($"- recipient merged: {result.RecipientsMerged:n0}");
+            AppendLog($"- message conversation_id cleared: {result.MessagesConversationCleared:n0}");
+            AppendLog($"- conversation rows deleted: {result.ConversationsDeleted:n0}");
+
+            return Task.CompletedTask;
+        });
+
+        await RefreshConversations();
+        await RefreshMergeSuggestions();
+    }
+
+    [RelayCommand]
     private async Task ApplySuggestedMerge(MergeSuggestionItem? suggestion)
     {
         if (suggestion is null)
@@ -755,6 +787,18 @@ public partial class MainViewModel : ObservableObject
     {
         // We only suggest merges for AU numbers in the +61 <-> 0 format.
         // Note: our importer normalizes digits to "+<digits>", so local numbers often look like "+0...".
+        // Legacy compatibility: earlier builds applied a NANP heuristic to 10-digit numbers and would turn "0..." into "+10...".
+        // Convert that back into "+0..." so we can still suggest merges.
+        if (cleaned.StartsWith("+1", StringComparison.Ordinal) && cleaned.Length > 2 && cleaned[2] == '0')
+        {
+            cleaned = "+" + cleaned[2..];
+        }
+
+        if (cleaned.StartsWith("10", StringComparison.Ordinal) && cleaned.Length > 2 && cleaned[2] == '0')
+        {
+            cleaned = cleaned[1..];
+        }
+
         if (cleaned.StartsWith("0061", StringComparison.Ordinal) && cleaned.Length > 4)
         {
             cleaned = "+61" + cleaned[4..];

@@ -85,8 +85,21 @@
 
                         <Button Content="Import XML" Style="{StaticResource PrimaryButtonStyle}" Margin="0,12,0,0" Command="{Binding ImportXmlCommand}" IsEnabled="{Binding IsNotBusy}" />
                         <Button Content="Export merged XML" Style="{StaticResource PrimaryButtonStyle}" Margin="0,10,0,0" Command="{Binding ExportXmlCommand}" IsEnabled="{Binding IsNotBusy}" />
-                        <Button Content="Export media" Style="{StaticResource SecondaryButtonStyle}" Margin="0,10,0,0" Command="{Binding ExportMediaCommand}" IsEnabled="{Binding IsNotBusy}" />
-                        <Button Content="Export media (by phone)" Style="{StaticResource SecondaryButtonStyle}" Margin="0,10,0,0" Command="{Binding ExportMediaByPhoneCommand}" IsEnabled="{Binding IsNotBusy}" />
+                        <Button x:Name="ExportMediaButton"
+                                Content="Export media…"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Margin="0,10,0,0"
+                                IsEnabled="{Binding IsNotBusy}"
+                                Click="ExportMediaButton_Click">
+                            <Button.ContextMenu>
+                                <ContextMenu Placement="Bottom" PlacementTarget="{Binding ElementName=ExportMediaButton}">
+                                    <MenuItem Header="All files into one folder"
+                                              Command="{Binding ExportMediaCommand}" />
+                                    <MenuItem Header="Group into folders by phone number"
+                                              Command="{Binding ExportMediaByPhoneCommand}" />
+                                </ContextMenu>
+                            </Button.ContextMenu>
+                        </Button>
 
                         <DockPanel Margin="0,12,0,0" LastChildFill="True">
                             <Button DockPanel.Dock="Right" Content="  Refresh  " Padding="14,6" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding RefreshConversationsCommand}" IsEnabled="{Binding IsNotBusy}" />
@@ -98,7 +111,7 @@
                 <Border Style="{StaticResource CardBorderStyle}" Margin="0,14,0,0">
                     <StackPanel>
                         <TextBlock Text="Overview" Style="{StaticResource SectionHeaderTextStyle}" />
-                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,0">
                             <Border Background="#10FFFFFF" CornerRadius="10" Padding="10" Margin="0,0,10,0">
                                 <StackPanel>
                                     <TextBlock Text="Conversations" Style="{StaticResource MutedTextStyle}" />

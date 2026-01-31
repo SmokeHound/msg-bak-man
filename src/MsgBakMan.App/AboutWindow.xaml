@@ -37,6 +37,24 @@
                     </StackPanel>
                 </Border>
 
+                <Border x:Name="MaintenanceSection" Style="{StaticResource CardBorderStyle}" Padding="12" Margin="0,14,0,0">
+                    <StackPanel>
+                        <TextBlock Text="Maintenance" Style="{StaticResource SectionHeaderTextStyle}" />
+                        <TextBlock Margin="0,6,0,0"
+                                   TextWrapping="Wrap"
+                                   Style="{StaticResource MutedTextStyle}">
+                            Repairs legacy phone numbers in the project DB (converts +10… to +0…).
+                        </TextBlock>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                            <Button x:Name="RepairPhoneNumbersButton"
+                                    Content=" Repair +10→+0 "
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    Command="{Binding RepairPhoneNumbersCommand, RelativeSource={RelativeSource AncestorType=Window}}" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,18,0,0">
                     <Button Content="OK" Width="90" IsDefault="True" Style="{StaticResource PrimaryButtonStyle}" Click="Ok_Click" />
                 </StackPanel>

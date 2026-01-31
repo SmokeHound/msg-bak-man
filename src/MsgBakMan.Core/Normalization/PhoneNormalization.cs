@@ -38,8 +38,9 @@ public static class PhoneNormalization
         }
 
         // Heuristic: if it looks like NANP without country code, prefix 1.
+        // Guard: many locales have 10-digit numbers that begin with 0 (e.g., AU mobiles). Those should NOT get a leading 1.
         // This is intentionally tolerant; we only use it for dedupe keys.
-        if (sb.Length == 10)
+        if (sb.Length == 10 && sb[0] != '0')
         {
             sb.Insert(0, '1');
         }

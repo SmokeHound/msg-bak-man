@@ -10,9 +10,9 @@ static byte[] RenderPng(int size)
     g.SmoothingMode = SmoothingMode.AntiAlias;
     g.Clear(Color.Transparent);
 
-    var bgTop = Color.FromArgb(255, 37, 99, 235);   // blue 600
-    var bgBot = Color.FromArgb(255, 29, 78, 216);   // blue 700
-    var fg = Color.White;
+    var bgA = Color.FromArgb(255, 139, 92, 246);   // violet
+    var bgB = Color.FromArgb(255, 34, 211, 238);   // cyan
+    var cutout = Color.FromArgb(255, 11, 18, 32);  // deep navy
 
     // Rounded square background
     var pad = Math.Max(2, size / 16);
@@ -20,64 +20,86 @@ static byte[] RenderPng(int size)
     var radius = Math.Max(8, size / 5);
 
     using (var path = RoundedRect(rect, radius))
-    using (var brush = new LinearGradientBrush(rect, bgTop, bgBot, LinearGradientMode.Vertical))
+    using (var brush = new LinearGradientBrush(rect, bgA, bgB, 45f))
     {
         g.FillPath(brush, path);
     }
 
-    // Subtle top highlight
-    using (var highlight = new LinearGradientBrush(
-               new Rectangle(rect.X, rect.Y, rect.Width, rect.Height / 2),
-               Color.FromArgb(90, 255, 255, 255),
-               Color.FromArgb(0, 255, 255, 255),
-               LinearGradientMode.Vertical))
+    // Subtle border
     using (var path = RoundedRect(rect, radius))
+    using (var pen = new Pen(Color.FromArgb(70, 255, 255, 255), Math.Max(1f, size / 128f)))
     {
-        g.FillPath(highlight, path);
+        g.DrawPath(pen, path);
     }
 
-    // Chat bubble mark (simplify for small sizes for better legibility)
-    var bubblePad = size < 48 ? size * 0.20f : size * 0.22f;
+    // Chat bubble mark
+    var bubblePad = size < 48 ? size * 0.22f : size * 0.24f;
     var bubbleRect = new RectangleF(
         bubblePad,
         bubblePad * 0.95f,
         size - bubblePad * 2f,
-        size - bubblePad * (size < 48 ? 2.0f : 2.2f));
+        size - bubblePad * (size < 48 ? 2.05f : 2.25f));
 
-    using (var bubblePath = RoundedRectF(bubbleRect, size < 48 ? size * 0.14f : size * 0.12f))
-    using (var bubbleBrush = new SolidBrush(Color.FromArgb(245, 255, 255, 255)))
+    using (var bubblePath = RoundedRectF(bubbleRect, size < 48 ? size * 0.16f : size * 0.14f))
+    using (var bubbleBrush = new SolidBrush(Color.FromArgb(248, 255, 255, 255)))
     {
         g.FillPath(bubbleBrush, bubblePath);
     }
 
-    // Bubble tail (omit at tiny sizes)
-    if (size >= 32)
+    // Bubble tail (keep simple)
+    if (size >= 24)
     {
         using var tail = new GraphicsPath();
-        using var tailBrush = new SolidBrush(Color.FromArgb(245, 255, 255, 255));
-        var tailX = bubbleRect.X + bubbleRect.Width * 0.28f;
+        using var tailBrush = new SolidBrush(Color.FromArgb(248, 255, 255, 255));
+        var tailX = bubbleRect.X + bubbleRect.Width * 0.22f;
         var tailY = bubbleRect.Bottom - bubbleRect.Height * 0.06f;
         tail.AddPolygon(new[]
         {
             new PointF(tailX, tailY),
-            new PointF(tailX + bubbleRect.Width * 0.10f, tailY),
-            new PointF(tailX + bubbleRect.Width * 0.02f, tailY + bubbleRect.Height * 0.12f)
+            new PointF(tailX + bubbleRect.Width * 0.14f, tailY),
+            new PointF(tailX + bubbleRect.Width * 0.05f, tailY + bubbleRect.Height * 0.16f)
         });
         g.FillPath(tailBrush, tail);
     }
 
-    // Monogram only for larger sizes
-    if (size >= 48)
+    // Database cutout inside bubble (omit at tiny sizes)
+    if (size >= 32)
     {
-        var fontSize = size * 0.26f;
-        using var font = new Font("Segoe UI", fontSize, FontStyle.Bold, GraphicsUnit.Pixel);
-        var text = "MBM";
-        var textSize = g.MeasureString(text, font);
-        var tx = (size - textSize.Width) / 2f;
-        var ty = (size - textSize.Height) / 2f + size * 0.05f;
+        var dbW = bubbleRect.Width * 0.36f;
+        var dbH = bubbleRect.Height * 0.48f;
+        var dbX = bubbleRect.X + (bubbleRect.Width - dbW) / 2f;
+        var dbY = bubbleRect.Y + bubbleRect.Height * 0.26f;
+        var capH = Math.Max(2f, dbH * 0.22f);
 
-        using var textBrush = new SolidBrush(Color.FromArgb(255, 16, 24, 40));
-        g.DrawString(text, font, textBrush, tx, ty);
+        using var cut = new SolidBrush(cutout);
+
+        // Body
+        g.FillRectangle(cut, dbX, dbY + capH / 2f, dbW, dbH - capH);
+
+        // Top ellipse
+        g.FillEllipse(cut, dbX, dbY, dbW, capH);
+
+        // Bottom ellipse hint
+        g.FillEllipse(cut, dbX, dbY + dbH - capH, dbW, capH);
+
+        // Inner highlight lines
+        using var linePen = new Pen(Color.FromArgb(90, 255, 255, 255), Math.Max(1f, size / 96f));
+        var y1 = dbY + dbH * 0.33f;
+        var y2 = dbY + dbH * 0.62f;
+        g.DrawArc(linePen, dbX, y1, dbW, capH, 0, 180);
+        g.DrawArc(linePen, dbX, y2, dbW, capH, 0, 180);
+    }
+    else
+    {
+        // Three dots for legibility at tiny sizes
+        using var dot = new SolidBrush(cutout);
+        var d = Math.Max(2f, size * 0.10f);
+        var gap = d * 0.65f;
+        var cx = bubbleRect.X + bubbleRect.Width / 2f;
+        var cy = bubbleRect.Y + bubbleRect.Height * 0.55f;
+        g.FillEllipse(dot, cx - d - gap, cy - d / 2f, d, d);
+        g.FillEllipse(dot, cx - d / 2f, cy - d / 2f, d, d);
+        g.FillEllipse(dot, cx + gap, cy - d / 2f, d, d);
     }
 
     using var ms = new MemoryStream();
