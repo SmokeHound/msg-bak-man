@@ -10,6 +10,9 @@
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         SizeToContent="WidthAndHeight"
+    Background="{DynamicResource AppBackgroundBrush}"
+    SnapsToDevicePixels="True"
+    UseLayoutRounding="True"
         Icon="Assets/msgbakman.ico">
     <Border Background="{DynamicResource AppBackgroundBrush}" Padding="16">
         <Border Style="{StaticResource CardBorderStyle}" Padding="16">

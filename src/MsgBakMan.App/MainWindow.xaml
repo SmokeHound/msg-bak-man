@@ -13,6 +13,7 @@
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
         <conv:EmptyCollectionToVisibilityConverter x:Key="EmptyToVis" />
         <conv:ZeroCountToVisibilityConverter x:Key="ZeroToVis" />
+        <conv:WidthToColumnsConverter x:Key="WidthToColumns" />
     </Window.Resources>
     <Grid Background="{DynamicResource AppBackgroundBrush}" Margin="14">
         <Grid.RowDefinitions>
@@ -386,10 +387,16 @@
                                     <Grid Grid.Row="1">
                                         <ListBox ItemsSource="{Binding MergeSuggestions}"
                                                  BorderThickness="0"
-                                                 ScrollViewer.VerticalScrollBarVisibility="Auto">
+                                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                                 ScrollViewer.CanContentScroll="False">
+                                            <ListBox.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <UniformGrid Columns="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=ListBox}, Converter={StaticResource WidthToColumns}, ConverterParameter='780;1200'}" />
+                                                </ItemsPanelTemplate>
+                                            </ListBox.ItemsPanel>
                                             <ListBox.ItemTemplate>
                                                 <DataTemplate>
-                                                    <Border Style="{StaticResource CardBorderStyle}" Padding="12" Margin="0,0,0,10">
+                                                    <Border Style="{StaticResource CardBorderStyle}" Padding="12" Margin="5,0,5,10">
                                                         <StackPanel>
                                                             <TextBlock Text="{Binding Title}" FontWeight="SemiBold" />
                                                             <TextBlock Text="{Binding Details}"
