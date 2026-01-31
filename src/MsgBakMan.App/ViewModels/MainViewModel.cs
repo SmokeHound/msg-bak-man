@@ -12,6 +12,7 @@ using MsgBakMan.Data.Repositories;
 using MsgBakMan.Data.Sqlite;
 using MsgBakMan.ImportExport.Export;
 using MsgBakMan.ImportExport.Import;
+using MsgBakMan.ImportExport.Media;
 
 namespace MsgBakMan.App.ViewModels;
 
@@ -66,7 +67,14 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private int _searchResultCount;
 
+    [ObservableProperty]
+    private int _mergeSuggestionCount;
+
+    [ObservableProperty]
+    private string _mergeSuggestionStatus = string.Empty;
+
     public ObservableCollection<ConversationListItem> Conversations { get; } = new();
+    public ObservableCollection<MergeSuggestionItem> MergeSuggestions { get; } = new();
 
     public IReadOnlyList<string> AccentPalettes { get; } = new[]
     {
@@ -272,6 +280,238 @@ public partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private async Task ExportMedia()
+    {
+        using var dlg = new System.Windows.Forms.FolderBrowserDialog
+        {
+            Description = "Select an output folder for exported media",
+            UseDescriptionForTitle = true,
+            ShowNewFolderButton = true,
+            SelectedPath = ProjectFolder
+        };
+
+        if (dlg.ShowDialog() != System.Windows.Forms.DialogResult.OK || string.IsNullOrWhiteSpace(dlg.SelectedPath))
+        {
+            return;
+        }
+
+        var outputRoot = dlg.SelectedPath;
+
+        await RunBusyAsync("Exporting media...", ct =>
+        {
+            var paths = EnsureProjectInitialized();
+
+            Directory.CreateDirectory(outputRoot);
+
+            using var conn = new SqliteConnectionFactory(paths.DbPath).Open();
+            new MigrationRunner().ApplyAll(conn);
+
+            var repo = new ExportRepository(conn);
+            var blobs = repo.GetAllMediaBlobs().ToList();
+
+            var copied = 0;
+            var skipped = 0;
+            var missing = 0;
+            var errors = 0;
+
+            for (var i = 0; i < blobs.Count; i++)
+            {
+                ct.ThrowIfCancellationRequested();
+
+                var b = blobs[i];
+                var src = Path.Combine(paths.ProjectRoot, b.RelativePath.Replace('/', '\\'));
+                if (!File.Exists(src))
+                {
+                    missing++;
+                    continue;
+                }
+
+                var ext = NormalizeExtension(b.Extension, b.MimeType);
+                var dest = Path.Combine(outputRoot, b.Sha256 + ext);
+
+                if (File.Exists(dest))
+                {
+                    skipped++;
+                    continue;
+                }
+
+                try
+                {
+                    File.Copy(src, dest);
+                    copied++;
+
+                    if (copied % 250 == 0)
+                    {
+                        AppendLog($"Exported {copied:n0}/{blobs.Count:n0}…");
+                    }
+                }
+                catch
+                {
+                    errors++;
+                }
+            }
+
+            AppendLog($"Media export complete → {outputRoot}");
+            AppendLog($"Copied: {copied:n0} • Skipped existing: {skipped:n0} • Missing source: {missing:n0} • Errors: {errors:n0}");
+            return Task.CompletedTask;
+        });
+    }
+
+    [RelayCommand]
+    private async Task ExportMediaByPhone()
+    {
+        using var dlg = new System.Windows.Forms.FolderBrowserDialog
+        {
+            Description = "Select an output folder (subfolders will be created by phone number)",
+            UseDescriptionForTitle = true,
+            ShowNewFolderButton = true,
+            SelectedPath = ProjectFolder
+        };
+
+        if (dlg.ShowDialog() != System.Windows.Forms.DialogResult.OK || string.IsNullOrWhiteSpace(dlg.SelectedPath))
+        {
+            return;
+        }
+
+        var outputRoot = dlg.SelectedPath;
+
+        await RunBusyAsync("Exporting media...", ct =>
+        {
+            var paths = EnsureProjectInitialized();
+            Directory.CreateDirectory(outputRoot);
+
+            using var conn = new SqliteConnectionFactory(paths.DbPath).Open();
+            new MigrationRunner().ApplyAll(conn);
+
+            // Ensure conversation_id + recipients are populated.
+            new ConversationMaintenance(conn).BackfillConversations();
+
+            var repo = new ExportRepository(conn);
+            var rows = repo.GetConversationMediaBlobs().ToList();
+
+            var copied = 0;
+            var skipped = 0;
+            var missing = 0;
+            var errors = 0;
+
+            foreach (var group in rows.GroupBy(r => r.ConversationId))
+            {
+                ct.ThrowIfCancellationRequested();
+
+                var recipients = group
+                    .Select(r => r.RecipientAddressNorm)
+                    .Where(r => !string.IsNullOrWhiteSpace(r))
+                    .Distinct(StringComparer.Ordinal)
+                    .ToList();
+
+                var folderLabel = recipients.Count == 1
+                    ? recipients[0]!
+                    : $"group_{group.Key}";
+
+                var folderName = MakeSafeFolderName(folderLabel);
+                var destFolder = Path.Combine(outputRoot, folderName);
+                Directory.CreateDirectory(destFolder);
+
+                var seenInFolder = new HashSet<string>(StringComparer.Ordinal);
+
+                foreach (var r in group)
+                {
+                    ct.ThrowIfCancellationRequested();
+
+                    // De-dupe per-folder; query can return multiple rows per blob due to multiple recipients.
+                    if (!seenInFolder.Add(r.Sha256))
+                    {
+                        continue;
+                    }
+
+                    var src = Path.Combine(paths.ProjectRoot, r.RelativePath.Replace('/', '\\'));
+                    if (!File.Exists(src))
+                    {
+                        missing++;
+                        continue;
+                    }
+
+                    var ext = NormalizeExtension(r.Extension, r.MimeType);
+                    var dest = Path.Combine(destFolder, r.Sha256 + ext);
+
+                    if (File.Exists(dest))
+                    {
+                        skipped++;
+                        continue;
+                    }
+
+                    try
+                    {
+                        File.Copy(src, dest);
+                        copied++;
+
+                        if (copied % 250 == 0)
+                        {
+                            AppendLog($"Exported {copied:n0}…");
+                        }
+                    }
+                    catch
+                    {
+                        errors++;
+                    }
+                }
+            }
+
+            AppendLog($"Media export (by phone) complete → {outputRoot}");
+            AppendLog($"Copied: {copied:n0} • Skipped existing: {skipped:n0} • Missing source: {missing:n0} • Errors: {errors:n0}");
+            return Task.CompletedTask;
+        });
+    }
+
+    private static string MakeSafeFolderName(string raw)
+    {
+        var name = string.IsNullOrWhiteSpace(raw) ? "unknown" : raw.Trim();
+
+        foreach (var c in Path.GetInvalidFileNameChars())
+        {
+            name = name.Replace(c, '_');
+        }
+
+        // Windows also dislikes trailing dots/spaces.
+        name = name.TrimEnd('.', ' ');
+        if (name.Length == 0)
+        {
+            name = "unknown";
+        }
+
+        if (name.Length > 80)
+        {
+            name = name[..80].TrimEnd('.', ' ');
+        }
+
+        return name;
+    }
+
+    private static string NormalizeExtension(string? extension, string? mimeType)
+    {
+        var ext = extension;
+
+        if (string.IsNullOrWhiteSpace(ext))
+        {
+            ext = MimeTypes.TryGetExtension(mimeType) ?? ".bin";
+        }
+
+        ext = ext.Trim();
+        if (!ext.StartsWith('.'))
+        {
+            ext = "." + ext;
+        }
+
+        // Guard against invalid filename characters.
+        foreach (var c in Path.GetInvalidFileNameChars())
+        {
+            ext = ext.Replace(c.ToString(), string.Empty);
+        }
+
+        return ext.Length == 0 ? ".bin" : ext;
+    }
+
+    [RelayCommand]
     private async Task RefreshConversations()
     {
         await RunBusyAsync("Loading conversations...", ct =>
@@ -305,6 +545,252 @@ public partial class MainViewModel : ObservableObject
 
             return Task.CompletedTask;
         });
+    }
+
+    [RelayCommand]
+    private async Task RefreshMergeSuggestions()
+    {
+        await RunBusyAsync("Finding merge suggestions...", ct =>
+        {
+            var paths = EnsureProjectInitialized();
+            using var conn = new SqliteConnectionFactory(paths.DbPath).Open();
+            new MigrationRunner().ApplyAll(conn);
+
+            // Ensure conversation_id + recipients are populated.
+            new ConversationMaintenance(conn).BackfillConversations();
+
+            var repo = new ConversationRepository(conn);
+            var rows = repo.GetConversationRecipients().ToList();
+
+            var convs = rows
+                .GroupBy(r => r.ConversationId)
+                .Select(g => new ConversationWithRecipients(
+                    ConversationId: g.Key,
+                    ConversationKey: g.First().ConversationKey,
+                    DisplayName: g.First().DisplayName,
+                    MessageCount: g.First().MessageCount,
+                    LastDateMs: g.First().LastDateMs,
+                    Recipients: g.Select(x => x.RecipientAddressNorm)
+                        .Where(x => !string.IsNullOrWhiteSpace(x))
+                        .Select(x => x!)
+                        .Distinct(StringComparer.Ordinal)
+                        .ToList()
+                ))
+                .ToList();
+
+            var candidates = new List<(string Canonical, string Original, ConversationWithRecipients Conv)>();
+
+            foreach (var c in convs)
+            {
+                var number = TryGetSingleRecipientNumber(c);
+                if (string.IsNullOrWhiteSpace(number))
+                {
+                    continue;
+                }
+
+                var clean = CleanPhoneToken(number);
+                if (clean.Length == 0)
+                {
+                    continue;
+                }
+
+                var canonical = TryGetAustralianLocalCanonical(clean);
+                if (canonical is null)
+                {
+                    continue;
+                }
+
+                candidates.Add((canonical, clean, c));
+            }
+
+            var suggestions = candidates
+                .GroupBy(x => x.Canonical, StringComparer.Ordinal)
+                .Select(g =>
+                {
+                    var uniqueConvs = g
+                        .Select(x => x.Conv)
+                        .GroupBy(x => x.ConversationId)
+                        .Select(x => x.First())
+                        .ToList();
+
+                    if (uniqueConvs.Count < 2)
+                    {
+                        return null;
+                    }
+
+                    var hasPlus61 = g.Any(x =>
+                        x.Original.StartsWith("+61", StringComparison.Ordinal)
+                        || x.Original.StartsWith("61", StringComparison.Ordinal)
+                        || x.Original.StartsWith("0061", StringComparison.Ordinal));
+                    var hasLocal0 = g.Any(x =>
+                        x.Original.StartsWith("0", StringComparison.Ordinal)
+                        || x.Original.StartsWith("+0", StringComparison.Ordinal));
+                    if (!hasPlus61 || !hasLocal0)
+                    {
+                        return null;
+                    }
+
+                    var target = uniqueConvs
+                        .OrderByDescending(x => x.MessageCount)
+                        .ThenByDescending(x => x.LastDateMs ?? 0)
+                        .First();
+
+                    var mergeIds = uniqueConvs
+                        .Where(x => x.ConversationId != target.ConversationId)
+                        .Select(x => x.ConversationId)
+                        .ToList();
+
+                    var variants = g
+                        .Select(x => x.Original)
+                        .Distinct(StringComparer.Ordinal)
+                        .OrderBy(x => x, StringComparer.Ordinal)
+                        .ToList();
+
+                    var lines = uniqueConvs
+                        .OrderByDescending(x => x.MessageCount)
+                        .ThenByDescending(x => x.LastDateMs ?? 0)
+                        .Select(x => $"• {FormatConversationLabel(x)} — {x.MessageCount:n0} msgs")
+                        .ToList();
+
+                    var details = $"Variants: {string.Join(", ", variants)}\n\n" + string.Join("\n", lines) + $"\n\nTarget: {FormatConversationLabel(target)}";
+
+                    return new MergeSuggestionItem(
+                        Title: $"Merge suggested for {g.Key}",
+                        Details: details,
+                        TargetConversationId: target.ConversationId,
+                        MergeConversationIds: mergeIds
+                    );
+                })
+                .Where(x => x is not null)
+                .Select(x => x!)
+                .OrderBy(x => x.Title, StringComparer.Ordinal)
+                .ToList();
+
+            MergeSuggestions.Clear();
+            foreach (var s in suggestions)
+            {
+                MergeSuggestions.Add(s);
+            }
+
+            MergeSuggestionCount = MergeSuggestions.Count;
+            MergeSuggestionStatus = MergeSuggestionCount == 0
+                ? "No suggestions found."
+                : $"Found {MergeSuggestionCount:n0} suggested merge(s).";
+
+            return Task.CompletedTask;
+        });
+    }
+
+    [RelayCommand]
+    private async Task ApplySuggestedMerge(MergeSuggestionItem? suggestion)
+    {
+        if (suggestion is null)
+        {
+            return;
+        }
+
+        if (suggestion.MergeConversationIds.Count == 0)
+        {
+            return;
+        }
+
+        await RunBusyAsync("Merging...", ct =>
+        {
+            ct.ThrowIfCancellationRequested();
+            var paths = EnsureProjectInitialized();
+            using var conn = new SqliteConnectionFactory(paths.DbPath).Open();
+            new MigrationRunner().ApplyAll(conn);
+
+            var repo = new ConversationRepository(conn);
+            repo.MergeConversations(suggestion.TargetConversationId, suggestion.MergeConversationIds);
+            new ConversationMaintenance(conn).BackfillConversations();
+            return Task.CompletedTask;
+        });
+
+        await RefreshConversations();
+        await RefreshMergeSuggestions();
+    }
+
+    private static string? TryGetSingleRecipientNumber(ConversationWithRecipients c)
+    {
+        if (c.Recipients.Count == 1)
+        {
+            return c.Recipients[0];
+        }
+
+        // SMS conversations often have a usable key like "sms:+614...".
+        if (c.ConversationKey.StartsWith("sms:", StringComparison.OrdinalIgnoreCase))
+        {
+            var raw = c.ConversationKey[4..];
+            return string.IsNullOrWhiteSpace(raw) ? null : raw;
+        }
+
+        return null;
+    }
+
+    private static string CleanPhoneToken(string raw)
+    {
+        // Keep digits and a single leading '+'.
+        raw = raw.Trim();
+        var sb = new StringBuilder(raw.Length);
+        for (var i = 0; i < raw.Length; i++)
+        {
+            var ch = raw[i];
+            if (char.IsDigit(ch))
+            {
+                sb.Append(ch);
+                continue;
+            }
+
+            if (ch == '+' && sb.Length == 0)
+            {
+                sb.Append(ch);
+            }
+        }
+
+        return sb.ToString();
+    }
+
+    private static string? TryGetAustralianLocalCanonical(string cleaned)
+    {
+        // We only suggest merges for AU numbers in the +61 <-> 0 format.
+        // Note: our importer normalizes digits to "+<digits>", so local numbers often look like "+0...".
+        if (cleaned.StartsWith("0061", StringComparison.Ordinal) && cleaned.Length > 4)
+        {
+            cleaned = "+61" + cleaned[4..];
+        }
+
+        if (cleaned.StartsWith("61", StringComparison.Ordinal) && cleaned.Length > 2)
+        {
+            cleaned = "+" + cleaned;
+        }
+
+        if (cleaned.StartsWith("+0", StringComparison.Ordinal) && cleaned.Length > 2)
+        {
+            cleaned = cleaned[1..]; // drop '+' so it becomes "0..."
+        }
+
+        if (cleaned.StartsWith("+61", StringComparison.Ordinal) && cleaned.Length > 3)
+        {
+            return "0" + cleaned[3..];
+        }
+
+        if (cleaned.StartsWith("0", StringComparison.Ordinal) && cleaned.Length > 1)
+        {
+            return cleaned;
+        }
+
+        return null;
+    }
+
+    private static string FormatConversationLabel(ConversationWithRecipients c)
+    {
+        if (!string.IsNullOrWhiteSpace(c.DisplayName))
+        {
+            return c.DisplayName!;
+        }
+
+        return c.ConversationKey;
     }
 
     partial void OnSelectedConversationChanged(ConversationListItem? value)
@@ -593,4 +1079,20 @@ public partial class MainViewModel : ObservableObject
                 ? SmsBody!
                 : (MmsSubject ?? string.Empty);
     }
+
+    public sealed record MergeSuggestionItem(
+        string Title,
+        string Details,
+        long TargetConversationId,
+        IReadOnlyList<long> MergeConversationIds
+    );
+
+    private sealed record ConversationWithRecipients(
+        long ConversationId,
+        string ConversationKey,
+        string? DisplayName,
+        long MessageCount,
+        long? LastDateMs,
+        IReadOnlyList<string> Recipients
+    );
 }

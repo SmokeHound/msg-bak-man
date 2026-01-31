@@ -1,6 +1,0 @@
-C:\DEV\msg-bak-man\installer\MsgBakMan.Installer\obj\x64\Release\MsgBakMan.Installer.wixproj.CoreCompileInputs.cache
-C:\DEV\msg-bak-man\installer\MsgBakMan.Installer\obj\x64\Release\MsgBakMan.Installer.msi
-C:\DEV\msg-bak-man\installer\MsgBakMan.Installer\obj\x64\Release\MsgBakMan.Installer.wixpdb
-C:\DEV\msg-bak-man\installer\MsgBakMan.Installer\obj\x64\Release\MsgBakMan.Installer.wixproj.BindTracking-neutral.txt
-C:\DEV\msg-bak-man\installer\MsgBakMan.Installer\bin\x64\Release\MsgBakMan.Installer.msi
-C:\DEV\msg-bak-man\installer\MsgBakMan.Installer\bin\x64\Release\MsgBakMan.Installer.wixpdb

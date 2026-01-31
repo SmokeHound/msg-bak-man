@@ -13,6 +13,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MsgBakMan.Data", "src\MsgBa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MsgBakMan.ImportExport", "src\MsgBakMan.ImportExport\MsgBakMan.ImportExport.csproj", "{440CDAA6-EA2B-4F92-A8F7-54EDD5AAF11B}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{07C2787E-EAC7-C090-1BA3-A61EC2A24D84}"
+	ProjectSection(SolutionItems) = preProject
+		tools\IconGen\IconGen.csproj = tools\IconGen\IconGen.csproj
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

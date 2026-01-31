@@ -1,1 +1,19 @@
 /.vscode
+
+# Build output
+**/bin/
+**/obj/
+
+# Visual Studio / Rider / VS Code user files
+/.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# OS files
+Thumbs.db
+Desktop.ini
+
+# Logs
+*.log
