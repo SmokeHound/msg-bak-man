@@ -39,9 +39,12 @@ dotnet run --project .\src\MsgBakMan.App\MsgBakMan.App.csproj
 
 ## CI
 
-GitHub Actions workflow builds on Windows and verifies formatting:
+GitHub Actions workflows:
 
-- `.github/workflows/dotnet-desktop.yml`
+- `.github/workflows/dotnet-desktop.yml` — builds solution, verifies formatting, and creates MSI installer artifacts
+- `.github/workflows/release.yml` — creates GitHub releases with MSI installer when tags are pushed (v*.*.*)
+- `.github/workflows/codeql.yml` — security analysis using CodeQL (runs on push/PR and weekly)
+- `.github/workflows/dependency-review.yml` — scans for vulnerable dependencies in pull requests
 
 ## Contributing
 
