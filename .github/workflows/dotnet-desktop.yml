@@ -69,5 +69,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: MsgBakMan-Installer
-          path: installer/MsgBakMan.Installer/bin/Release/x64/*.msi
+          path: installer/MsgBakMan.Installer/bin/x64/Release/*.msi
           if-no-files-found: error
