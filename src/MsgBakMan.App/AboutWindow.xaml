@@ -14,7 +14,11 @@
     SnapsToDevicePixels="True"
     UseLayoutRounding="True"
         Icon="Assets/msgbakman.ico">
-    <Border Background="{DynamicResource AppBackgroundBrush}" Padding="16">
+    <Border Background="{DynamicResource AppBackgroundBrush}"
+            Padding="16"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            SnapsToDevicePixels="True">
         <Border Style="{StaticResource CardBorderStyle}" Padding="16">
             <StackPanel Width="440">
                 <TextBlock Text="Message Backup Manager" Style="{StaticResource AppTitleTextStyle}" />

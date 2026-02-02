@@ -20,6 +20,7 @@ public partial class MainViewModel : ObservableObject
 {
     private readonly List<ConversationListItem> _conversationItemsWithHandlers = new();
     private readonly List<MergeSuggestionItem> _mergeSuggestionItemsWithHandlers = new();
+    private bool _suppressMarkedMergeCountUpdates;
 
     public MainViewModel()
     {
@@ -165,11 +166,19 @@ public partial class MainViewModel : ObservableObject
     {
         OnPropertyChanged(nameof(IsNotBusy));
         AcceptMarkedMergesCommand.NotifyCanExecuteChanged();
+        MarkAllMergeSuggestionsCommand.NotifyCanExecuteChanged();
+        ClearMarkedMergeSuggestionsCommand.NotifyCanExecuteChanged();
     }
 
     partial void OnMarkedMergeCountChanged(int value)
     {
         AcceptMarkedMergesCommand.NotifyCanExecuteChanged();
+    }
+
+    partial void OnMergeSuggestionCountChanged(int value)
+    {
+        MarkAllMergeSuggestionsCommand.NotifyCanExecuteChanged();
+        ClearMarkedMergeSuggestionsCommand.NotifyCanExecuteChanged();
     }
 
     partial void OnConversationSearchChanged(string value)
@@ -713,8 +722,64 @@ public partial class MainViewModel : ObservableObject
     {
         if (e.PropertyName == nameof(MergeSuggestionItem.IsMarked))
         {
+            if (_suppressMarkedMergeCountUpdates)
+            {
+                return;
+            }
+
             MarkedMergeCount = MergeSuggestions.Count(x => x.IsMarked);
         }
+    }
+
+    private bool CanBulkMarkMergeSuggestions()
+        => IsNotBusy && MergeSuggestionCount > 0;
+
+    [RelayCommand(CanExecute = nameof(CanBulkMarkMergeSuggestions))]
+    private void MarkAllMergeSuggestions()
+    {
+        if (MergeSuggestions.Count == 0)
+        {
+            return;
+        }
+
+        _suppressMarkedMergeCountUpdates = true;
+        try
+        {
+            foreach (var s in MergeSuggestions)
+            {
+                s.IsMarked = true;
+            }
+        }
+        finally
+        {
+            _suppressMarkedMergeCountUpdates = false;
+        }
+
+        MarkedMergeCount = MergeSuggestions.Count;
+    }
+
+    [RelayCommand(CanExecute = nameof(CanBulkMarkMergeSuggestions))]
+    private void ClearMarkedMergeSuggestions()
+    {
+        if (MergeSuggestions.Count == 0)
+        {
+            return;
+        }
+
+        _suppressMarkedMergeCountUpdates = true;
+        try
+        {
+            foreach (var s in MergeSuggestions)
+            {
+                s.IsMarked = false;
+            }
+        }
+        finally
+        {
+            _suppressMarkedMergeCountUpdates = false;
+        }
+
+        MarkedMergeCount = 0;
     }
 
     private bool CanAcceptMarkedMerges()
