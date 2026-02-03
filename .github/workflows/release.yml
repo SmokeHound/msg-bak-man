@@ -34,29 +34,45 @@ jobs:
           restore-keys: |
             nuget-${{ runner.os }}-
 
-      - name: Restore
-        run: dotnet restore "MsgBakMan.sln"
-
-      - name: Build
-        run: dotnet build "MsgBakMan.sln" -c Release --no-restore
-
-      - name: Build Installer
-        run: |
-          dotnet build "installer\MsgBakMan.Installer\MsgBakMan.Installer.wixproj" -c Release -v minimal
-
       - name: Get version from tag
         id: get_version
         shell: pwsh
         run: |
-          $tag = "${{ github.ref }}" -replace 'refs/tags/', ''
-          echo "version=$tag" >> $env:GITHUB_OUTPUT
-          echo "Version: $tag"
+          $ref = "${{ github.ref }}"
+
+          if ($ref -like 'refs/tags/*') {
+            $tag = $ref -replace 'refs/tags/', ''
+            $version = $tag
+            if ($version -like 'v*') {
+              $version = $version.Substring(1)
+            }
+          } else {
+            $tag = "v0.0.0-ci.${{ github.run_number }}"
+            $version = "0.0.0-ci.${{ github.run_number }}"
+          }
+
+          echo "tag=$tag" >> $env:GITHUB_OUTPUT
+          echo "version=$version" >> $env:GITHUB_OUTPUT
+          echo "Tag: $tag"
+          echo "Version: $version"
+
+      - name: Restore
+        run: dotnet restore "MsgBakMan.sln"
+
+      - name: Build
+        run: dotnet build "MsgBakMan.sln" -c Release --no-restore -p:Version=${{ steps.get_version.outputs.version }}
+
+      - name: Build Installer
+        run: |
+          dotnet build "installer\MsgBakMan.Installer\MsgBakMan.Installer.wixproj" -c Release -v minimal -p:Version=${{ steps.get_version.outputs.version }}
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ steps.get_version.outputs.tag }}
+          target_commitish: ${{ github.sha }}
           files: installer/MsgBakMan.Installer/bin/x64/Release/*.msi
           draft: false
           prerelease: false
           generate_release_notes: true
-          name: Release ${{ steps.get_version.outputs.version }}
+          name: Release ${{ steps.get_version.outputs.tag }}

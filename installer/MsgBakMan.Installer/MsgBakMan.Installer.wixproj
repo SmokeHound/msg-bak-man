@@ -6,7 +6,14 @@
 
     <ProductName>MsgBakMan</ProductName>
     <Manufacturer>MsgBakMan</Manufacturer>
-    <ProductVersion>1.0.0</ProductVersion>
+
+    <!--
+      ProductVersion drives the MSI version.
+      If the build supplies a Version (e.g. from a git tag), use it by default.
+      You can still override explicitly via /p:ProductVersion=...
+    -->
+    <ProductVersion Condition="'$(ProductVersion)'=='' and '$(Version)'!=''">$(Version)</ProductVersion>
+    <ProductVersion Condition="'$(ProductVersion)'==''">1.0.0</ProductVersion>
 
     <DefineConstants>ProductName=$(ProductName);Manufacturer=$(Manufacturer);ProductVersion=$(ProductVersion)</DefineConstants>
   </PropertyGroup>
