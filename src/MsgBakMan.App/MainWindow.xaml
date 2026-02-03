@@ -360,6 +360,7 @@
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="*" />
+                                        <RowDefinition Height="Auto" />
                                     </Grid.RowDefinitions>
 
                                     <DockPanel Grid.Row="0" LastChildFill="True" Margin="0,0,0,10">
@@ -455,6 +456,16 @@
                                                        VerticalAlignment="Center" />
                                         </Border>
                                     </Grid>
+
+                                    <DockPanel Grid.Row="2" Margin="0,10,0,0" LastChildFill="False">
+                                        <Button DockPanel.Dock="Right"
+                                            Content="{Binding MarkedMergeCount, StringFormat=Merge marked ({0})}"
+                                            Style="{StaticResource PrimaryButtonStyle}"
+                                            Command="{Binding AcceptMarkedMergesCommand}"
+                                            IsEnabled="{Binding IsNotBusy}"
+                                            Padding="12,8"
+                                            MinWidth="140" />
+                                    </DockPanel>
                                 </Grid>
                             </Grid>
                         </Border>
