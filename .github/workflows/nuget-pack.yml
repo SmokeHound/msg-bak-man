@@ -1,0 +1,90 @@
+name: NuGet Package (pack)
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Optional package version (e.g. 1.2.3). If empty and running on a v*.*.* tag, uses the tag without the leading 'v'."
+        required: false
+        type: string
+      publish_to_github_packages:
+        description: "If true, also publish packages to GitHub Packages (nuget.pkg.github.com)."
+        required: false
+        type: boolean
+        default: false
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  pack:
+    name: Pack (NuGet)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Resolve version
+        id: version
+        shell: pwsh
+        run: |
+          $inputVersion = "${{ github.event.inputs.version }}".Trim()
+          if ($inputVersion) {
+            $version = $inputVersion
+          } else {
+            $refName = "${{ github.ref_name }}"
+            if ($refName -like 'v*') {
+              $version = $refName.Substring(1)
+            } else {
+              $version = "0.0.0-ci.${{ github.run_number }}"
+            }
+          }
+
+          "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          Write-Host "PackageVersion: $version"
+
+      - name: Restore
+        run: dotnet restore "MsgBakMan.sln"
+
+      - name: Pack
+        run: |
+          dotnet pack "src\MsgBakMan.Core\MsgBakMan.Core.csproj" -c Release --no-restore -p:PackageVersion=${{ steps.version.outputs.version }}
+          dotnet pack "src\MsgBakMan.Data\MsgBakMan.Data.csproj" -c Release --no-restore -p:PackageVersion=${{ steps.version.outputs.version }}
+          dotnet pack "src\MsgBakMan.ImportExport\MsgBakMan.ImportExport.csproj" -c Release --no-restore -p:PackageVersion=${{ steps.version.outputs.version }}
+
+      - name: Upload Packages Artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: nupkg-${{ steps.version.outputs.version }}
+          path: |
+            src/MsgBakMan.Core/bin/Release/*.nupkg
+            src/MsgBakMan.Data/bin/Release/*.nupkg
+            src/MsgBakMan.ImportExport/bin/Release/*.nupkg
+          if-no-files-found: error
+
+      - name: Setup GitHub Packages source
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.publish_to_github_packages == 'true' }}
+        uses: actions/setup-dotnet@v5
+        with:
+          source-url: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to GitHub Packages
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.publish_to_github_packages == 'true' }}
+        shell: pwsh
+        run: |
+          $source = "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
+          dotnet nuget push "src\MsgBakMan.Core\bin\Release\*.nupkg" --source $source --skip-duplicate
+          dotnet nuget push "src\MsgBakMan.Data\bin\Release\*.nupkg" --source $source --skip-duplicate
+          dotnet nuget push "src\MsgBakMan.ImportExport\bin\Release\*.nupkg" --source $source --skip-duplicate
