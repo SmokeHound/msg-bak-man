@@ -32,8 +32,6 @@ jobs:
         with:
           path: |
             ~/.nuget/packages
-            ${{ env.LOCALAPPDATA }}\NuGet\v3-cache
-            ${{ env.LOCALAPPDATA }}\NuGet\plugins-cache
           key: nuget-${{ runner.os }}-${{ hashFiles('**/*.sln', '**/*.csproj', '**/Directory.Packages.props', '**/packages.lock.json', '**/NuGet.config', '**/nuget.config') }}
           restore-keys: |
             nuget-${{ runner.os }}-
