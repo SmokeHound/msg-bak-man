@@ -28,7 +28,7 @@
 
     <!-- Launch condition: Ensure .NET 10 Desktop Runtime or SDK is installed -->
     <Property Id="NETRUNTIME10">
-      <RegistrySearch Id="NetRuntime10Desktop" Root="HKLM" Key="SOFTWARE\dotnet\Setup\InstalledVersions\x64\sharedhost" Name="Version" Type="raw" />
+      <RegistrySearch Id="NetRuntime10Desktop" Root="HKLM" Key="SOFTWARE\dotnet\Setup\InstalledVersions\x64\shared\Microsoft.WindowsDesktop.App" Type="raw" />
     </Property>
     <Launch Condition="NETRUNTIME10" Message="This application requires .NET 10 Desktop Runtime. Please install it from https://dotnet.microsoft.com/download/dotnet/10.0" />
 
@@ -97,10 +97,6 @@
 
     <WixVariable Id="WixUILicenseRtf" Value="License-en.rtf" />
     <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
-
-    <!-- Customize dialog appearance -->
-    <WixVariable Id="WixUIDialogBmp" Value="..\..\src\MsgBakMan.App\Assets\msgbakman.ico" Overridable="yes" />
-    <WixVariable Id="WixUIBannerBmp" Value="..\..\src\MsgBakMan.App\Assets\msgbakman.ico" Overridable="yes" />
 
     <!-- Option to launch application after install -->
     <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch $(var.ProductName)" />
