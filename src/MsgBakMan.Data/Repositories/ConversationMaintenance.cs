@@ -24,7 +24,7 @@ SELECT 'sms:' || COALESCE(s.address_norm, s.address_raw, ''),
        strftime('%s','now')
 FROM message m
 JOIN sms s ON s.message_id = m.message_id
-WHERE m.transport='sms';
+WHERE m.transport='sms' AND m.conversation_id IS NULL;
 ", transaction: tx);
 
         _conn.Execute(@"
@@ -61,7 +61,7 @@ SELECT 'mms:' || COALESCE(mm.address_norm, mm.address_raw, '') || '|' || COALESC
 FROM message m
 JOIN mms mm ON mm.message_id = m.message_id
 LEFT JOIN addrset ON addrset.message_id = m.message_id
-WHERE m.transport='mms';
+WHERE m.transport='mms' AND m.conversation_id IS NULL;
 ", transaction: tx);
 
         _conn.Execute(@"
@@ -123,6 +123,25 @@ FROM message m
 JOIN mms_addr a ON a.message_id = m.message_id
 JOIN recipient r ON r.address_norm = a.address_norm
 WHERE m.conversation_id IS NOT NULL AND a.address_norm IS NOT NULL;
+", transaction: tx);
+
+  // Remove empty conversations that can be created when messages are reassigned (e.g. manual merges).
+  _conn.Execute(@"
+DELETE FROM conversation
+WHERE conversation_id NOT IN (
+  SELECT DISTINCT conversation_id
+  FROM message
+  WHERE conversation_id IS NOT NULL
+);
+", transaction: tx);
+
+  // Clean up any recipient links to conversations that no longer exist.
+  _conn.Execute(@"
+DELETE FROM conversation_recipient
+WHERE conversation_id NOT IN (
+  SELECT conversation_id
+  FROM conversation
+);
 ", transaction: tx);
 
         tx.Commit();

@@ -13,7 +13,6 @@
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
         <conv:EmptyCollectionToVisibilityConverter x:Key="EmptyToVis" />
         <conv:ZeroCountToVisibilityConverter x:Key="ZeroToVis" />
-        <conv:WidthToColumnsConverter x:Key="WidthToColumns" />
     </Window.Resources>
     <Grid Background="{DynamicResource AppBackgroundBrush}" Margin="14">
         <Grid.RowDefinitions>
@@ -86,21 +85,7 @@
 
                         <Button Content="Import XML" Style="{StaticResource PrimaryButtonStyle}" Margin="0,12,0,0" Command="{Binding ImportXmlCommand}" IsEnabled="{Binding IsNotBusy}" />
                         <Button Content="Export merged XML" Style="{StaticResource PrimaryButtonStyle}" Margin="0,10,0,0" Command="{Binding ExportXmlCommand}" IsEnabled="{Binding IsNotBusy}" />
-                        <Button x:Name="ExportMediaButton"
-                                Content="Export media…"
-                                Style="{StaticResource SecondaryButtonStyle}"
-                                Margin="0,10,0,0"
-                                IsEnabled="{Binding IsNotBusy}"
-                                Click="ExportMediaButton_Click">
-                            <Button.ContextMenu>
-                                <ContextMenu Placement="Bottom" PlacementTarget="{Binding ElementName=ExportMediaButton}">
-                                    <MenuItem Header="All files into one folder"
-                                              Command="{Binding ExportMediaCommand}" />
-                                    <MenuItem Header="Group into folders by phone number"
-                                              Command="{Binding ExportMediaByPhoneCommand}" />
-                                </ContextMenu>
-                            </Button.ContextMenu>
-                        </Button>
+                        <Button Content="Export media" Style="{StaticResource SecondaryButtonStyle}" Margin="0,10,0,0" Command="{Binding ExportMediaCommand}" IsEnabled="{Binding IsNotBusy}" />
 
                         <DockPanel Margin="0,12,0,0" LastChildFill="True">
                             <Button DockPanel.Dock="Right" Content="  Refresh  " Padding="14,6" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding RefreshConversationsCommand}" IsEnabled="{Binding IsNotBusy}" />
@@ -112,7 +97,7 @@
                 <Border Style="{StaticResource CardBorderStyle}" Margin="0,14,0,0">
                     <StackPanel>
                         <TextBlock Text="Overview" Style="{StaticResource SectionHeaderTextStyle}" />
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,0">
+                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
                             <Border Background="#10FFFFFF" CornerRadius="10" Padding="10" Margin="0,0,10,0">
                                 <StackPanel>
                                     <TextBlock Text="Conversations" Style="{StaticResource MutedTextStyle}" />
@@ -185,14 +170,7 @@
                                                                 <ColumnDefinition Width="*" />
                                                             </Grid.ColumnDefinitions>
 
-                                                            <CheckBox Grid.Column="0"
-                                                                      IsChecked="{Binding IsChecked}"
-                                                                      VerticalAlignment="Center"
-                                                                      HorizontalAlignment="Left"
-                                                                      Width="22"
-                                                                      MinWidth="0"
-                                                                      Padding="0"
-                                                                      Margin="0,0,10,0" />
+                                                            <CheckBox Grid.Column="0" IsChecked="{Binding IsChecked}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,10,0" />
                                                             <StackPanel Grid.Column="1">
                                                                 <TextBlock Text="{Binding Display}" Style="{StaticResource EllipsisText}" />
                                                                 <TextBlock FontSize="11" Style="{StaticResource MutedTextStyle}">
@@ -339,132 +317,6 @@
                                 </Grid>
                             </Border>
                         </Grid>
-                    </TabItem>
-
-                    <TabItem Header="Merge">
-                        <Border Padding="12">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="*" />
-                                </Grid.RowDefinitions>
-
-                                <TextBlock Text="Merge suggestions" Style="{StaticResource SectionHeaderTextStyle}" />
-                                <TextBlock Grid.Row="1"
-                                           Text="Suggest merges when the same number appears as +61… and 0…"
-                                           Style="{StaticResource MutedTextStyle}"
-                                           Margin="0,4,0,0" />
-
-                                <Grid Grid.Row="2" Margin="0,12,0,0">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="*" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
-
-                                    <DockPanel Grid.Row="0" LastChildFill="True" Margin="0,0,0,10">
-                                        <Button DockPanel.Dock="Right"
-                                            Content="{Binding MarkedMergeCount, StringFormat=Merge marked ({0})}"
-                                            Style="{StaticResource PrimaryButtonStyle}"
-                                            Command="{Binding AcceptMarkedMergesCommand}"
-                                            Padding="12,8"
-                                            MinWidth="140"
-                                            Margin="10,0,0,0" />
-                                        <Button DockPanel.Dock="Right"
-                                            Content="Clear"
-                                            Style="{StaticResource SecondaryButtonStyle}"
-                                            Command="{Binding ClearMarkedMergeSuggestionsCommand}"
-                                            Padding="12,8"
-                                            MinWidth="90"
-                                            Margin="10,0,0,0" />
-                                        <Button DockPanel.Dock="Right"
-                                            Content="Mark all"
-                                            Style="{StaticResource SecondaryButtonStyle}"
-                                            Command="{Binding MarkAllMergeSuggestionsCommand}"
-                                            Padding="12,8"
-                                            MinWidth="90"
-                                            Margin="10,0,0,0" />
-                                        <Button DockPanel.Dock="Right"
-                                                Content="Refresh"
-                                                Style="{StaticResource SecondaryButtonStyle}"
-                                                Command="{Binding RefreshMergeSuggestionsCommand}"
-                                                IsEnabled="{Binding IsNotBusy}"
-                                                Padding="12,8"
-                                                MinWidth="90" />
-                                        <TextBlock Text="{Binding MergeSuggestionStatus}"
-                                                   VerticalAlignment="Center"
-                                                   Style="{StaticResource MutedTextStyle}"
-                                                   Margin="0,0,10,0" />
-                                    </DockPanel>
-
-                                    <Grid Grid.Row="1">
-                                        <ListBox ItemsSource="{Binding MergeSuggestions}"
-                                                 BorderThickness="0"
-                                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                                 ScrollViewer.CanContentScroll="False">
-                                            <ListBox.ItemsPanel>
-                                                <ItemsPanelTemplate>
-                                                    <UniformGrid Columns="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=ListBox}, Converter={StaticResource WidthToColumns}, ConverterParameter='780;1200'}" />
-                                                </ItemsPanelTemplate>
-                                            </ListBox.ItemsPanel>
-                                            <ListBox.ItemTemplate>
-                                                <DataTemplate>
-                                                    <Border Style="{StaticResource CardBorderStyle}" Padding="12" Margin="5,0,5,10">
-                                                        <StackPanel>
-                                                            <TextBlock Text="{Binding Title}" FontWeight="SemiBold" />
-                                                            <TextBlock Text="{Binding Details}"
-                                                                       Style="{StaticResource MutedTextStyle}"
-                                                                       Margin="0,6,0,0"
-                                                                       TextWrapping="Wrap" />
-
-                                                            <DockPanel Margin="0,10,0,0" LastChildFill="False">
-                                                                <Button DockPanel.Dock="Right"
-                                                                        Content="Merge"
-                                                                        Style="{StaticResource PrimaryButtonStyle}"
-                                                                        Padding="12,8"
-                                                                        Command="{Binding DataContext.ApplySuggestedMergeCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
-                                                                        CommandParameter="{Binding}" />
-                                                                <CheckBox DockPanel.Dock="Right"
-                                                                          IsChecked="{Binding IsMarked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                                          VerticalAlignment="Center"
-                                                                          Margin="0,0,10,0"
-                                                                          Content="Mark" />
-                                                                <TextBlock Text="Merges the other conversation(s) into the target."
-                                                                           VerticalAlignment="Center"
-                                                                           Style="{StaticResource MutedTextStyle}"
-                                                                           Margin="0,0,10,0" />
-                                                            </DockPanel>
-                                                        </StackPanel>
-                                                    </Border>
-                                                </DataTemplate>
-                                            </ListBox.ItemTemplate>
-                                        </ListBox>
-
-                                        <Border Background="#10FFFFFF"
-                                                BorderBrush="{DynamicResource CardBorderBrush}"
-                                                BorderThickness="1"
-                                                CornerRadius="12"
-                                                Visibility="{Binding MergeSuggestionCount, Converter={StaticResource ZeroToVis}}"
-                                                IsHitTestVisible="False">
-                                            <TextBlock Text="No merge suggestions yet. Click Refresh."
-                                                       TextAlignment="Center"
-                                                       Style="{StaticResource MutedTextStyle}"
-                                                       VerticalAlignment="Center" />
-                                        </Border>
-                                    </Grid>
-
-                                    <DockPanel Grid.Row="2" Margin="0,10,0,0" LastChildFill="False">
-                                        <Button DockPanel.Dock="Right"
-                                            Content="{Binding MarkedMergeCount, StringFormat=Merge marked ({0})}"
-                                            Style="{StaticResource PrimaryButtonStyle}"
-                                            Command="{Binding AcceptMarkedMergesCommand}"
-                                            Padding="12,8"
-                                            MinWidth="140" />
-                                    </DockPanel>
-                                </Grid>
-                            </Grid>
-                        </Border>
                     </TabItem>
 
                     <TabItem Header="Log">

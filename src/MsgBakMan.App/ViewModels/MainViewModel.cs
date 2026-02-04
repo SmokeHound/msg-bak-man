@@ -797,6 +797,8 @@ public partial class MainViewModel : ObservableObject
             return;
         }
 
+        AppendLog($"Merging {marked.Count:n0} marked suggestion(s)...");
+
         await RunBusyAsync($"Merging {marked.Count:n0} marked suggestion(s)...", ct =>
         {
             ct.ThrowIfCancellationRequested();
@@ -814,6 +816,8 @@ public partial class MainViewModel : ObservableObject
                 {
                     continue;
                 }
+
+                AppendLog($"MERGE (bulk): target={suggestion.TargetConversationId} merge=[{string.Join(", ", suggestion.MergeConversationIds)}] • {suggestion.Title}");
 
                 repo.MergeConversations(suggestion.TargetConversationId, suggestion.MergeConversationIds);
             }
@@ -878,6 +882,8 @@ public partial class MainViewModel : ObservableObject
         {
             return;
         }
+
+        AppendLog($"MERGE (single): target={suggestion.TargetConversationId} merge=[{string.Join(", ", suggestion.MergeConversationIds)}] • {suggestion.Title}");
 
         await RunBusyAsync("Merging...", ct =>
         {
@@ -1144,6 +1150,8 @@ public partial class MainViewModel : ObservableObject
             AppendLog("No conversations checked to merge.");
             return;
         }
+
+        AppendLog($"MERGE (manual): target={SelectedConversation.ConversationId} merge=[{string.Join(", ", mergeIds)}]");
 
         await RunBusyAsync("Merging conversations...", ct =>
         {
