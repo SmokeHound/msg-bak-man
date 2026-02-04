@@ -35,7 +35,7 @@ if ($LASTEXITCODE -eq 0) {
   Write-Host "==================================================" -ForegroundColor Green
   Write-Host "  Build completed successfully!" -ForegroundColor Green
   Write-Host "==================================================" -ForegroundColor Green
-  Write-Host "MSI Location: installer/MsgBakMan.Installer/bin/x64/$Configuration/" -ForegroundColor Cyan
+  Write-Host "MSI Location: installer\MsgBakMan.Installer\bin\x64\$Configuration\" -ForegroundColor Cyan
   Write-Host ""
   
   # List the MSI files

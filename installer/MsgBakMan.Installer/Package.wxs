@@ -27,8 +27,11 @@
     <Property Id="ARPNOMODIFY" Value="yes" />
 
     <!-- Launch condition: Ensure .NET 10 Desktop Runtime or SDK is installed -->
+    <!-- Check for .NET 10.x Desktop Runtime by searching for version-specific registry key -->
     <Property Id="NETRUNTIME10">
-      <RegistrySearch Id="NetRuntime10Desktop" Root="HKLM" Key="SOFTWARE\dotnet\Setup\InstalledVersions\x64\shared\Microsoft.WindowsDesktop.App" Type="raw" />
+      <DirectorySearch Id="DotNetSharedFxDir" Path="[ProgramFilesFolder]dotnet\shared\Microsoft.WindowsDesktop.App">
+        <DirectorySearch Id="DotNet10Dir" Path="10.*" />
+      </DirectorySearch>
     </Property>
     <Launch Condition="NETRUNTIME10" Message="This application requires .NET 10 Desktop Runtime. Please install it from https://dotnet.microsoft.com/download/dotnet/10.0" />
 
