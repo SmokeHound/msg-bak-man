@@ -12,13 +12,25 @@
 
     <SummaryInformation Description="$(var.ProductName)" />
 
-    <MajorUpgrade DowngradeErrorMessage="A newer version of $(var.ProductName) is already installed." />
+    <MajorUpgrade DowngradeErrorMessage="A newer version of $(var.ProductName) is already installed." 
+                  AllowSameVersionUpgrades="yes" 
+                  Schedule="afterInstallExecute" />
     <MediaTemplate EmbedCab="yes" />
 
     <Icon Id="AppIcon" SourceFile="..\..\src\MsgBakMan.App\Assets\msgbakman.ico" />
     <Property Id="ARPPRODUCTICON" Value="AppIcon" />
     <Property Id="ARPCONTACT" Value="$(var.Manufacturer)" />
     <Property Id="ARPCOMMENTS" Value="Import, merge, and export SMS Backup &amp; Restore XML backups." />
+    <Property Id="ARPHELPLINK" Value="https://github.com/SmokeHound/msg-bak-man" />
+    <Property Id="ARPURLINFOABOUT" Value="https://github.com/SmokeHound/msg-bak-man" />
+    <Property Id="ARPNOREPAIR" Value="yes" />
+    <Property Id="ARPNOMODIFY" Value="yes" />
+
+    <!-- Launch condition: Ensure .NET 10 Desktop Runtime or SDK is installed -->
+    <Property Id="NETRUNTIME10">
+      <RegistrySearch Id="NetRuntime10Desktop" Root="HKLM" Key="SOFTWARE\dotnet\Setup\InstalledVersions\x64\sharedhost" Name="Version" Type="raw" />
+    </Property>
+    <Launch Condition="NETRUNTIME10" Message="This application requires .NET 10 Desktop Runtime. Please install it from https://dotnet.microsoft.com/download/dotnet/10.0" />
 
     <!-- Optional feature toggles (can be overridden via MSI properties) -->
     <Property Id="INSTALLDESKTOPSHORTCUT" Value="1" />
@@ -42,6 +54,7 @@
         Id="StartMenuShortcut"
         Directory="AppProgramMenuFolder"
         Name="$(var.ProductName)"
+        Description="Import, merge, and export SMS Backup &amp; Restore XML backups"
         Target="[INSTALLFOLDER]MsgBakMan.App.exe"
         WorkingDirectory="INSTALLFOLDER"
         Icon="AppIcon" />
@@ -55,11 +68,18 @@
         Id="DesktopShortcut"
         Directory="DesktopFolder"
         Name="$(var.ProductName)"
+        Description="Import, merge, and export SMS Backup &amp; Restore XML backups"
         Target="[INSTALLFOLDER]MsgBakMan.App.exe"
         WorkingDirectory="INSTALLFOLDER"
         Icon="AppIcon" />
 
       <RegistryValue Root="HKCU" Key="Software\$(var.Manufacturer)\$(var.ProductName)\Shortcuts" Name="Desktop" Type="integer" Value="1" KeyPath="yes" />
+    </Component>
+
+    <Component Id="RegistryCleanup" Directory="INSTALLFOLDER" Guid="{B8F2E9A7-4C3D-4E1F-9B7A-5D8C2E4F1A3B}">
+      <!-- Clean up registry entries on uninstall -->
+      <RemoveRegistryKey Root="HKCU" Key="Software\$(var.Manufacturer)\$(var.ProductName)" Action="removeOnUninstall" />
+      <RegistryValue Root="HKCU" Key="Software\$(var.Manufacturer)\$(var.ProductName)" Name="Installed" Type="integer" Value="1" KeyPath="yes" />
     </Component>
 
     <Feature Id="MainFeature" Title="$(var.ProductName)" Level="1">
@@ -72,9 +92,23 @@
       <ComponentRef Id="MainExe" />
       <ComponentRef Id="StartMenuShortcuts" />
       <ComponentRef Id="DesktopShortcut" />
+      <ComponentRef Id="RegistryCleanup" />
     </Feature>
 
     <WixVariable Id="WixUILicenseRtf" Value="License-en.rtf" />
     <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
+
+    <!-- Customize dialog appearance -->
+    <WixVariable Id="WixUIDialogBmp" Value="..\..\src\MsgBakMan.App\Assets\msgbakman.ico" Overridable="yes" />
+    <WixVariable Id="WixUIBannerBmp" Value="..\..\src\MsgBakMan.App\Assets\msgbakman.ico" Overridable="yes" />
+
+    <!-- Option to launch application after install -->
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch $(var.ProductName)" />
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
+    <Property Id="WixShellExecTarget" Value="[#MsgBakManExe]" />
+    <CustomAction Id="LaunchApplication" BinaryRef="Wix4UtilCA_X64" DllEntry="WixShellExec" Impersonate="yes" />
+    <InstallExecuteSequence>
+      <Custom Action="LaunchApplication" After="InstallFinalize">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed</Custom>
+    </InstallExecuteSequence>
   </Package>
 </Wix>

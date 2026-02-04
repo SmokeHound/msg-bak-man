@@ -35,7 +35,35 @@ dotnet run --project .\src\MsgBakMan.App\MsgBakMan.App.csproj
 - `src/MsgBakMan.Core` — domain/model logic
 - `src/MsgBakMan.Data` — data access/repositories
 - `src/MsgBakMan.ImportExport` — import/export implementation
+- `installer/MsgBakMan.Installer` — WiX-based MSI installer
 - `tools/IconGen` — small tool for generating app icon assets
+
+## Building the Installer
+
+Build the MSI installer using the provided PowerShell script:
+
+```powershell
+# Build with default version (1.0.0)
+.\build-installer.ps1
+
+# Build with a specific version
+.\build-installer.ps1 -Version 1.2.3
+
+# Build Debug configuration
+.\build-installer.ps1 -Configuration Debug
+```
+
+The MSI will be created at `installer/MsgBakMan.Installer/bin/x64/Release/MsgBakMan.msi`.
+
+### Installer Features
+
+- Modern WiX Toolset v6 installer
+- .NET 10 Runtime detection with helpful error messages
+- Desktop and Start Menu shortcuts (desktop shortcut optional)
+- Launch application after installation (optional checkbox)
+- Clean uninstallation with registry cleanup
+- Support for in-place upgrades and same-version reinstalls
+- Add/Remove Programs integration with help links and product information
 
 ## CI
 
