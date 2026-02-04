@@ -17,3 +17,6 @@ Desktop.ini
 
 # Logs
 *.log
+
+# Installer preview files
+*_preview.png

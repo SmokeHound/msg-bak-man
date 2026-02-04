@@ -57,7 +57,8 @@ The MSI will be created at `installer/MsgBakMan.Installer/bin/x64/Release/MsgBak
 
 ### Installer Features
 
-- Modern WiX Toolset v6 installer
+- Modern WiX Toolset v6 installer with custom visual design
+- Professional gradient banner and dialog backgrounds
 - .NET 10 Runtime detection with helpful error messages
 - Desktop and Start Menu shortcuts (desktop shortcut optional)
 - Launch application after installation (optional checkbox)

@@ -101,6 +101,10 @@
     <WixVariable Id="WixUILicenseRtf" Value="License-en.rtf" />
     <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
 
+    <!-- Custom modern visual design -->
+    <WixVariable Id="WixUIBannerBmp" Value="BannerTop.bmp" />
+    <WixVariable Id="WixUIDialogBmp" Value="DialogBackground.bmp" />
+
     <!-- Option to launch application after install -->
     <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch $(var.ProductName)" />
     <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
