@@ -35,5 +35,7 @@
 
   <ItemGroup>
     <None Include="License-en.rtf" />
+    <None Include="BannerTop.bmp" />
+    <None Include="DialogBackground.bmp" />
   </ItemGroup>
 </Project>
