@@ -564,6 +564,8 @@ public partial class MainViewModel : ObservableObject
 
             return Task.CompletedTask;
         });
+
+        await RefreshMergeSuggestions();
     }
 
     [RelayCommand]
