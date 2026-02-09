@@ -11,7 +11,7 @@
     -->
     <SuppressIces>ICE61</SuppressIces>
 
-    <ProductName>MsgBakMan</ProductName>
+    <ProductName>Message Backup Manager (MsgBakMan)</ProductName>
     <Manufacturer>MsgBakMan</Manufacturer>
 
     <!--
@@ -22,7 +22,7 @@
     <ProductVersion Condition="'$(ProductVersion)'=='' and '$(Version)'!=''">$(Version)</ProductVersion>
     <ProductVersion Condition="'$(ProductVersion)'==''">1.0.0</ProductVersion>
 
-    <DefineConstants>ProductName=$(ProductName);Manufacturer=$(Manufacturer);ProductVersion=$(ProductVersion)</DefineConstants>
+    <DefineConstants>ProductName=$(ProductName);Manufacturer=$(Manufacturer);ProductVersion=$(ProductVersion);InstallFolderName=MsgBakMan</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

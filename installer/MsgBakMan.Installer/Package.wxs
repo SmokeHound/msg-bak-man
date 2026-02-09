@@ -37,7 +37,7 @@
     <Property Id="INSTALLDESKTOPSHORTCUT" Value="1" />
 
     <StandardDirectory Id="ProgramFiles6432Folder">
-      <Directory Id="INSTALLFOLDER" Name="$(var.ProductName)" />
+      <Directory Id="INSTALLFOLDER" Name="$(var.InstallFolderName)" />
     </StandardDirectory>
 
     <StandardDirectory Id="ProgramMenuFolder">
