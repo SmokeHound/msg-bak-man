@@ -12,10 +12,26 @@ Write-Host "==================================================" -ForegroundColor
 Write-Host "  MsgBakMan Installer Build" -ForegroundColor Cyan
 Write-Host "==================================================" -ForegroundColor Cyan
 Write-Host "Configuration: $Configuration" -ForegroundColor Yellow
-if ($Version) {
-  Write-Host "Version:       $Version" -ForegroundColor Yellow
+
+# If no version is supplied, auto-generate a valid Windows Installer ProductVersion.
+# MSI ProductVersion format is Major.Minor.Build where:
+# - Major/Minor are typically <= 255
+# - Build is <= 65535
+# This generates: 1.(YY).(DayOfYear*100 + QuarterHourOfDay)
+if (-not $Version) {
+  $now = Get-Date
+  $yy = $now.Year - 2000
+  if ($yy -lt 0) { $yy = 0 }
+  if ($yy -gt 255) { $yy = 255 }
+
+  $quarterHour = [int][math]::Floor((($now.Hour * 60) + $now.Minute) / 15)
+  $build = ($now.DayOfYear * 100) + $quarterHour
+  if ($build -gt 65535) { $build = 65535 }
+
+  $Version = "1.$yy.$build"
+  Write-Host "Version:       $Version (auto)" -ForegroundColor Yellow
 } else {
-  Write-Host "Version:       1.0.0 (default)" -ForegroundColor Yellow
+  Write-Host "Version:       $Version" -ForegroundColor Yellow
 }
 Write-Host ""
 

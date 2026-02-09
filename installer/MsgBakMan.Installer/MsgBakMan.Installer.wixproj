@@ -4,6 +4,13 @@
     <Platform>x64</Platform>
     <InstallerPlatform>x64</InstallerPlatform>
 
+    <!--
+      ICE61 warns when an upgrade can target the same version.
+      We intentionally allow same-version upgrades (see MajorUpgrade in Package.wxs),
+      so suppress the warning to keep builds clean.
+    -->
+    <SuppressIces>ICE61</SuppressIces>
+
     <ProductName>MsgBakMan</ProductName>
     <Manufacturer>MsgBakMan</Manufacturer>
 

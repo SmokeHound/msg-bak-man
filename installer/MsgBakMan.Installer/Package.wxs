@@ -24,16 +24,14 @@
     <Property Id="ARPHELPLINK" Value="https://github.com/SmokeHound/msg-bak-man" />
     <Property Id="ARPURLINFOABOUT" Value="https://github.com/SmokeHound/msg-bak-man" />
     <Property Id="ARPNOREPAIR" Value="yes" />
-    <Property Id="ARPNOMODIFY" Value="yes" />
 
-    <!-- Launch condition: Ensure .NET 10 Desktop Runtime or SDK is installed -->
-    <!-- Check for .NET 10.x Desktop Runtime by searching for version-specific registry key -->
-    <Property Id="NETRUNTIME10">
-      <DirectorySearch Id="DotNetSharedFxDir" Path="[ProgramFilesFolder]dotnet\shared\Microsoft.WindowsDesktop.App">
-        <DirectorySearch Id="DotNet10Dir" Path="10.*" />
-      </DirectorySearch>
+    <!-- Launch condition: Ensure Windows Desktop Runtime is present.
+         Note: MSI conditions cannot reliably query 'any 10.*' folder without custom actions; this checks for the shared framework root.
+    -->
+    <Property Id="NETDESKTOPRUNTIME">
+      <DirectorySearch Id="DotNetWindowsDesktopSharedFx" Path="[ProgramFilesFolder]dotnet\shared\Microsoft.WindowsDesktop.App" />
     </Property>
-    <Launch Condition="NETRUNTIME10" Message="This application requires .NET 10 Desktop Runtime. Please install it from https://dotnet.microsoft.com/download/dotnet/10.0" />
+    <Launch Condition="NETDESKTOPRUNTIME" Message="This application requires the .NET Windows Desktop Runtime. If the app fails to launch, install .NET 10 Desktop Runtime from https://dotnet.microsoft.com/download/dotnet/10.0" />
 
     <!-- Optional feature toggles (can be overridden via MSI properties) -->
     <Property Id="INSTALLDESKTOPSHORTCUT" Value="1" />
@@ -111,7 +109,7 @@
     <Property Id="WixShellExecTarget" Value="[#MsgBakManExe]" />
     <CustomAction Id="LaunchApplication" BinaryRef="Wix4UtilCA_X64" DllEntry="WixShellExec" Impersonate="yes" />
     <InstallExecuteSequence>
-      <Custom Action="LaunchApplication" After="InstallFinalize">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed</Custom>
+      <Custom Action="LaunchApplication" After="InstallFinalize" Condition="WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 AND NOT Installed" />
     </InstallExecuteSequence>
   </Package>
 </Wix>
