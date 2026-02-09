@@ -15,56 +15,95 @@
     UseLayoutRounding="True"
         Icon="Assets/msgbakman.ico">
     <Border Background="{DynamicResource AppBackgroundBrush}"
-            Padding="16"
+            Padding="14"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Stretch"
             SnapsToDevicePixels="True">
         <Border Style="{StaticResource CardBorderStyle}" Padding="16">
-            <StackPanel Width="440">
-                <TextBlock Text="Message Backup Manager" Style="{StaticResource AppTitleTextStyle}" />
-                <TextBlock x:Name="VersionText" Margin="0,6,0,0" Style="{StaticResource MutedTextStyle}" />
+            <StackPanel Width="520">
+                <!-- Header -->
+                <DockPanel LastChildFill="False">
+                    <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Grid Width="36" Height="36" Margin="0,0,12,0" SnapsToDevicePixels="True" UseLayoutRounding="True">
+                            <Border Background="{DynamicResource AccentBrush}" CornerRadius="10" />
 
-                <TextBlock Margin="0,14,0,0" TextWrapping="Wrap">
-                    Import, merge, and export SMS Backup &amp; Restore XML backups.
-                </TextBlock>
+                            <!-- Bubble + tail -->
+                            <Canvas>
+                                <Border Canvas.Left="7" Canvas.Top="7" Width="22" Height="18"
+                                        Background="{DynamicResource AppBackgroundBrush}"
+                                        CornerRadius="7" />
+                                <Polygon Points="13,24 19,24 15,29"
+                                         Fill="{DynamicResource AppBackgroundBrush}" />
+
+                                <!-- Dots -->
+                                <Ellipse Canvas.Left="12" Canvas.Top="15" Width="3" Height="3" Fill="{DynamicResource AccentBrush}" />
+                                <Ellipse Canvas.Left="16.5" Canvas.Top="15" Width="3" Height="3" Fill="{DynamicResource AccentBrush}" />
+                                <Ellipse Canvas.Left="21" Canvas.Top="15" Width="3" Height="3" Fill="{DynamicResource AccentBrush}" />
+                            </Canvas>
+                        </Grid>
+
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Message Backup Manager" Style="{StaticResource AppTitleTextStyle}" />
+                            <TextBlock Text="Import, merge, and export SMS Backup &amp; Restore XML backups." Style="{StaticResource AppSubtitleTextStyle}" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <Border DockPanel.Dock="Right"
+                            Background="{DynamicResource AccentSoftBrush}"
+                            CornerRadius="10"
+                            Padding="10,6"
+                            VerticalAlignment="Center">
+                        <TextBlock x:Name="VersionText"
+                                   Foreground="{DynamicResource AccentBrush}"
+                                   FontWeight="SemiBold" />
+                    </Border>
+                </DockPanel>
 
                 <TextBlock x:Name="RuntimeText" Margin="0,12,0,0" Style="{StaticResource MutedTextStyle}" TextWrapping="Wrap" />
 
-                <Border x:Name="ProjectSection" Style="{StaticResource CardBorderStyle}" Padding="12" Margin="0,14,0,0">
+                <!-- Project -->
+                <Border x:Name="ProjectSection" Style="{StaticResource CardBorderStyle}" Margin="0,14,0,0" Padding="16">
                     <StackPanel>
                         <TextBlock Text="Project" Style="{StaticResource SectionHeaderTextStyle}" />
+                        <TextBlock Text="Quick access to the active project folder." Style="{StaticResource MutedTextStyle}" Margin="0,4,0,0" />
 
-                        <TextBlock x:Name="ProjectFolderText" Margin="0,6,0,0" Style="{StaticResource MutedTextStyle}" TextWrapping="Wrap" />
+                        <Border Style="{StaticResource RoundedInputBorderStyle}" Margin="0,12,0,0">
+                            <TextBlock x:Name="ProjectFolderText" Style="{StaticResource MutedTextStyle}" TextWrapping="Wrap" />
+                        </Border>
 
-                        <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
-                            <Button x:Name="OpenProjectFolderButton" Content=" Open project " Style="{StaticResource SecondaryButtonStyle}" Click="OpenProjectFolder_Click" />
-                            <Button x:Name="OpenDbFolderButton" Content=" Open DB " Style="{StaticResource SecondaryButtonStyle}" Margin="10,0,0,0" Click="OpenDbFolder_Click" />
-                            <Button x:Name="OpenMediaFolderButton" Content=" Open Media " Style="{StaticResource SecondaryButtonStyle}" Margin="6,0,0,0" Click="OpenMediaFolder_Click" />
-                        </StackPanel>
+                        <DockPanel Margin="0,12,0,0" LastChildFill="False">
+                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                                <Button x:Name="OpenProjectFolderButton" Content="  Open project  " Style="{StaticResource SecondaryButtonStyle}" Click="OpenProjectFolder_Click" />
+                                <Button x:Name="OpenDbFolderButton" Content="  Open DB  " Style="{StaticResource SecondaryButtonStyle}" Margin="10,0,0,0" Click="OpenDbFolder_Click" />
+                                <Button x:Name="OpenMediaFolderButton" Content="  Open media  " Style="{StaticResource SecondaryButtonStyle}" Margin="10,0,0,0" Click="OpenMediaFolder_Click" />
+                            </StackPanel>
+                        </DockPanel>
                     </StackPanel>
                 </Border>
 
-                <Border x:Name="MaintenanceSection" Style="{StaticResource CardBorderStyle}" Padding="12" Margin="0,14,0,0">
+                <!-- Maintenance -->
+                <Border x:Name="MaintenanceSection" Style="{StaticResource CardBorderStyle}" Margin="0,14,0,0" Padding="16">
                     <StackPanel>
                         <TextBlock Text="Maintenance" Style="{StaticResource SectionHeaderTextStyle}" />
-                        <TextBlock Margin="0,6,0,0"
+                        <TextBlock Margin="0,4,0,0"
                                    TextWrapping="Wrap"
                                    Style="{StaticResource MutedTextStyle}">
                             Repairs legacy phone numbers in the project DB (converts +10… to +0…).
                         </TextBlock>
 
-                        <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                        <DockPanel Margin="0,12,0,0" LastChildFill="False">
                             <Button x:Name="RepairPhoneNumbersButton"
-                                    Content=" Repair +10→+0 "
+                                    DockPanel.Dock="Right"
+                                    Content="  Repair +10→+0  "
                                     Style="{StaticResource SecondaryButtonStyle}"
                                     Command="{Binding RepairPhoneNumbersCommand, RelativeSource={RelativeSource AncestorType=Window}}" />
-                        </StackPanel>
+                        </DockPanel>
                     </StackPanel>
                 </Border>
 
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,18,0,0">
-                    <Button Content="OK" Width="90" IsDefault="True" Style="{StaticResource PrimaryButtonStyle}" Click="Ok_Click" />
-                </StackPanel>
+                <DockPanel Margin="0,16,0,0" LastChildFill="False">
+                    <Button DockPanel.Dock="Right" Content="OK" Width="90" IsDefault="True" Style="{StaticResource PrimaryButtonStyle}" Click="Ok_Click" />
+                </DockPanel>
             </StackPanel>
         </Border>
     </Border>
