@@ -24,9 +24,28 @@
         <!-- Top app bar -->
         <Border Grid.Row="0" Style="{StaticResource CardBorderStyle}" Padding="16" Margin="0,0,0,14">
             <DockPanel LastChildFill="False">
-                <StackPanel DockPanel.Dock="Left">
-                    <TextBlock Text="Message Backup Manager" Style="{StaticResource AppTitleTextStyle}" />
-                    <TextBlock Text="Import, merge, and export SMS backups." Style="{StaticResource AppSubtitleTextStyle}" />
+                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Grid Width="36" Height="36" Margin="0,0,12,0" SnapsToDevicePixels="True" UseLayoutRounding="True">
+                        <Border Background="{DynamicResource AccentBrush}" CornerRadius="10" />
+
+                        <!-- Bubble + tail -->
+                        <Canvas>
+                            <Border Canvas.Left="7" Canvas.Top="7" Width="22" Height="18"
+                                    Background="{DynamicResource AppBackgroundBrush}"
+                                    CornerRadius="7" />
+                            <Polygon Points="13,24 19,24 15,29"
+                                     Fill="{DynamicResource AppBackgroundBrush}" />
+
+                            <!-- Dots -->
+                            <Ellipse Canvas.Left="12" Canvas.Top="15" Width="3" Height="3" Fill="{DynamicResource AccentBrush}" />
+                            <Ellipse Canvas.Left="16.5" Canvas.Top="15" Width="3" Height="3" Fill="{DynamicResource AccentBrush}" />
+                            <Ellipse Canvas.Left="21" Canvas.Top="15" Width="3" Height="3" Fill="{DynamicResource AccentBrush}" />
+                        </Canvas>
+                    </Grid>
+                    <StackPanel>
+                        <TextBlock Text="Message Backup Manager" Style="{StaticResource AppTitleTextStyle}" />
+                        <TextBlock Text="Import, merge, and export SMS backups." Style="{StaticResource AppSubtitleTextStyle}" />
+                    </StackPanel>
                 </StackPanel>
 
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
@@ -159,12 +178,14 @@
                                                   SelectedItem="{Binding SelectedConversation}"
                                                   AutoGenerateColumns="False"
                                                   CanUserAddRows="False"
+                                                  HeadersVisibility="Column"
+                                                  RowHeaderWidth="0"
                                                   AlternationCount="2"
                                                   GridLinesVisibility="Horizontal"
                                                   VirtualizingPanel.IsVirtualizing="True"
                                                   VirtualizingPanel.VirtualizationMode="Recycling">
                                             <DataGrid.Columns>
-                                                <DataGridTemplateColumn Header="" Width="26" MinWidth="26">
+                                                <DataGridTemplateColumn Header="" Width="22">
                                                     <DataGridTemplateColumn.CellStyle>
                                                         <Style TargetType="DataGridCell">
                                                             <Setter Property="Padding" Value="0" />
@@ -178,10 +199,10 @@
                                                     </DataGridTemplateColumn.CellTemplate>
                                                 </DataGridTemplateColumn>
 
-                                                <DataGridTextColumn Header="Conversation" Binding="{Binding Display}" Width="*">
+                                                <DataGridTextColumn Header="Conversation" Binding="{Binding Display}" Width="Auto" MinWidth="90">
                                                     <DataGridTextColumn.CellStyle>
                                                         <Style TargetType="DataGridCell">
-                                                            <Setter Property="Padding" Value="4,0,6,0" />
+                                                            <Setter Property="Padding" Value="0,0,6,0" />
                                                         </Style>
                                                     </DataGridTextColumn.CellStyle>
                                                     <DataGridTextColumn.ElementStyle>

@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <Resource Include="Assets\msgbakman.ico" />
+    <Resource Include="Assets\msgbakman-256.png" />
   </ItemGroup>
 
   <ItemGroup>

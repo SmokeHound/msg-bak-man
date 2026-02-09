@@ -242,6 +242,8 @@ public partial class MainViewModel : ObservableObject
             return;
         }
 
+        AppendLog($"Import XML: {ofd.FileNames.Length:n0} file(s)" + (ofd.FileNames.Length == 0 ? string.Empty : $" → {string.Join(", ", ofd.FileNames.Select(Path.GetFileName))}"));
+
         await RunBusyAsync("Importing...", async ct =>
         {
             var paths = EnsureProjectInitialized();
@@ -267,6 +269,7 @@ public partial class MainViewModel : ObservableObject
         });
 
         await RefreshConversations();
+        AppendLog($"Import complete. Conversations: {ConversationCount:n0}");
     }
 
     [RelayCommand]
@@ -284,6 +287,8 @@ public partial class MainViewModel : ObservableObject
             return;
         }
 
+        AppendLog($"Export XML → {sfd.FileName}");
+
         await RunBusyAsync("Exporting...", async ct =>
         {
             var paths = EnsureProjectInitialized();
@@ -296,6 +301,8 @@ public partial class MainViewModel : ObservableObject
             var progress = new Progress<string>(AppendLog);
             await exporter.ExportAsync(sfd.FileName, progress, ct);
         });
+
+        AppendLog("Export complete.");
     }
 
     [RelayCommand]
@@ -562,6 +569,11 @@ public partial class MainViewModel : ObservableObject
             ConversationCount = Conversations.Count;
             OnPropertyChanged(nameof(CanMergeCheckedIntoSelected));
 
+            var filter = ConversationSearch?.Trim() ?? string.Empty;
+            AppendLog(filter.Length == 0
+                ? $"Loaded {ConversationCount:n0} conversation(s)."
+                : $"Loaded {ConversationCount:n0} conversation(s) (filter=\"{filter}\").");
+
             return Task.CompletedTask;
         });
 
@@ -715,6 +727,8 @@ public partial class MainViewModel : ObservableObject
             MergeSuggestionStatus = MergeSuggestionCount == 0
                 ? "No suggestions found."
                 : $"Found {MergeSuggestionCount:n0} suggested merge(s).";
+
+            AppendLog($"Merge suggestions refreshed: {MergeSuggestionCount:n0} suggestion(s) • {convs.Count:n0} conversation(s) scanned • {candidates.Count:n0} candidate(s)");
 
             return Task.CompletedTask;
         });
@@ -1013,6 +1027,8 @@ public partial class MainViewModel : ObservableObject
             return;
         }
 
+        AppendLog($"Loading messages for conversation {SelectedConversation.ConversationId}…");
+
         await RunBusyAsync("Loading messages...", ct =>
         {
             var paths = EnsureProjectInitialized();
@@ -1029,6 +1045,8 @@ public partial class MainViewModel : ObservableObject
 
             ConversationMessageCount = ConversationMessages.Count;
 
+            AppendLog($"Loaded {ConversationMessageCount:n0} message(s) for conversation {SelectedConversation.ConversationId}.");
+
             return Task.CompletedTask;
         });
     }
@@ -1041,8 +1059,11 @@ public partial class MainViewModel : ObservableObject
         {
             SearchResults.Clear();
             SearchResultCount = 0;
+            AppendLog("Search cleared.");
             return;
         }
+
+        AppendLog($"Search: \"{q}\"");
 
         await RunBusyAsync("Searching...", ct =>
         {
@@ -1060,6 +1081,8 @@ public partial class MainViewModel : ObservableObject
 
             SearchResultCount = SearchResults.Count;
 
+            AppendLog($"Search complete: {SearchResultCount:n0} result(s).");
+
             return Task.CompletedTask;
         });
     }
@@ -1076,6 +1099,7 @@ public partial class MainViewModel : ObservableObject
         MessageSearch = string.Empty;
         SearchResults.Clear();
         SearchResultCount = 0;
+        AppendLog("Search cleared.");
     }
 
     [RelayCommand]
@@ -1086,6 +1110,8 @@ public partial class MainViewModel : ObservableObject
             c.IsChecked = true;
         }
         OnPropertyChanged(nameof(CanMergeCheckedIntoSelected));
+
+        AppendLog($"Checked all conversations ({Conversations.Count:n0}).");
     }
 
     [RelayCommand]
@@ -1096,6 +1122,8 @@ public partial class MainViewModel : ObservableObject
             c.IsChecked = false;
         }
         OnPropertyChanged(nameof(CanMergeCheckedIntoSelected));
+
+        AppendLog($"Unchecked all conversations ({Conversations.Count:n0}).");
     }
 
     private void ConversationItemOnPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -1138,7 +1166,7 @@ public partial class MainViewModel : ObservableObject
     {
         if (SelectedConversation is null)
         {
-            AppendLog("Select a target conversation first.");
+            AppendLogWarning("Select a target conversation first.");
             return;
         }
 
@@ -1149,7 +1177,7 @@ public partial class MainViewModel : ObservableObject
 
         if (mergeIds.Count == 0)
         {
-            AppendLog("No conversations checked to merge.");
+            AppendLogWarning("No conversations checked to merge.");
             return;
         }
 
@@ -1191,6 +1219,30 @@ public partial class MainViewModel : ObservableObject
 
     private void AppendLog(string line)
     {
+        AppendLogRaw(FormatLogLine("INFO", line));
+    }
+
+    private void AppendLogWarning(string line)
+    {
+        AppendLogRaw(FormatLogLine("WARN", line));
+    }
+
+    private void AppendLogError(string line, Exception? ex = null)
+    {
+        if (ex is null)
+        {
+            AppendLogRaw(FormatLogLine("ERROR", line));
+            return;
+        }
+
+        AppendLogRaw(FormatLogLine("ERROR", $"{line} :: {ex}"));
+    }
+
+    private static string FormatLogLine(string level, string message)
+        => $"{DateTimeOffset.Now:HH:mm:ss} [{level}] {message}";
+
+    private void AppendLogRaw(string line)
+    {
         var sb = new StringBuilder(LogText);
         if (sb.Length > 0)
         {
@@ -1204,19 +1256,23 @@ public partial class MainViewModel : ObservableObject
     {
         if (IsBusy)
         {
+            AppendLogWarning($"Ignored request while busy: {busyText}");
             return;
         }
 
         IsBusy = true;
         BusyText = busyText;
+        var sw = Stopwatch.StartNew();
+        AppendLog($"BEGIN: {busyText}");
         try
         {
             using var cts = new CancellationTokenSource();
             await work(cts.Token);
+            AppendLog($"END: {busyText} ({sw.Elapsed.TotalSeconds:0.000}s)");
         }
         catch (Exception ex)
         {
-            AppendLog($"ERROR: {ex}");
+            AppendLogError($"FAILED: {busyText}", ex);
         }
         finally
         {
