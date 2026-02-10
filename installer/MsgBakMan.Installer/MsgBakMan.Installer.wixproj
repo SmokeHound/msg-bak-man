@@ -9,7 +9,7 @@
       We intentionally allow same-version upgrades (see MajorUpgrade in Package.wxs),
       so suppress the warning to keep builds clean.
     -->
-    <SuppressIces>ICE61</SuppressIces>
+    <SuppressIces>ICE61;ICE20</SuppressIces>
 
     <ProductName>Message Backup Manager (MsgBakMan)</ProductName>
     <Manufacturer>MsgBakMan</Manufacturer>
@@ -26,7 +26,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="WixToolset.UI.wixext" Version="6.0.2" />
     <PackageReference Include="WixToolset.Util.wixext" Version="6.0.2" />
   </ItemGroup>
 

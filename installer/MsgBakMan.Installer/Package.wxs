@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
-     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
   <Package
     Name="$(var.ProductName)"
     Manufacturer="$(var.Manufacturer)"
@@ -24,6 +23,8 @@
     <Property Id="ARPHELPLINK" Value="https://github.com/SmokeHound/msg-bak-man" />
     <Property Id="ARPURLINFOABOUT" Value="https://github.com/SmokeHound/msg-bak-man" />
     <Property Id="ARPNOREPAIR" Value="yes" />
+
+    <UIRef Id="CustomUI_MsgBakMan" />
 
     <!-- Launch condition: Ensure Windows Desktop Runtime is present.
          Note: MSI conditions cannot reliably query 'any 10.*' folder without custom actions; this checks for the shared framework root.
@@ -96,20 +97,8 @@
       <ComponentRef Id="RegistryCleanup" />
     </Feature>
 
-    <WixVariable Id="WixUILicenseRtf" Value="License-en.rtf" />
-    <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
-
-    <!-- Custom modern visual design -->
-    <WixVariable Id="WixUIBannerBmp" Value="BannerTop.bmp" />
-    <WixVariable Id="WixUIDialogBmp" Value="DialogBackground.bmp" />
-
-    <!-- Option to launch application after install -->
-    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch $(var.ProductName)" />
-    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
+    <!-- Option to launch application after install (wired in our custom UI) -->
     <Property Id="WixShellExecTarget" Value="[#MsgBakManExe]" />
     <CustomAction Id="LaunchApplication" BinaryRef="Wix4UtilCA_X64" DllEntry="WixShellExec" Impersonate="yes" />
-    <InstallExecuteSequence>
-      <Custom Action="LaunchApplication" After="InstallFinalize" Condition="WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 AND NOT Installed" />
-    </InstallExecuteSequence>
   </Package>
 </Wix>
