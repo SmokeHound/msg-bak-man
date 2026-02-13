@@ -6,9 +6,12 @@ WPF desktop app for importing, merging, and exporting **SMS Backup & Restore** X
 
 - Import SMS Backup & Restore XML into a local project database
 - Browse conversations and messages
-- Merge conversations / normalize phone numbers
+- Full-text search across all messages
+- Merge conversations with auto-detected merge suggestions (e.g. AU `+61` ↔ `0` format)
+- Normalize and repair phone numbers
 - Export messages back to SMS Backup & Restore XML
-- Export media (project media folder)
+- Export media as flat folder or organized by phone number / conversation
+- Dark / light theme with selectable accent palettes (settings persisted to `%LOCALAPPDATA%\MsgBakMan\settings.json`)
 
 ## Requirements
 
@@ -31,11 +34,11 @@ dotnet run --project .\src\MsgBakMan.App\MsgBakMan.App.csproj
 ## Solution layout
 
 - `MsgBakMan.sln` — solution
-- `src/MsgBakMan.App` — WPF UI
-- `src/MsgBakMan.Core` — domain/model logic
-- `src/MsgBakMan.Data` — data access/repositories
-- `src/MsgBakMan.ImportExport` — import/export implementation
-- `installer/MsgBakMan.Installer` — WiX-based MSI installer
+- `src/MsgBakMan.App` — WPF UI (CommunityToolkit.Mvvm + ModernWpfUI + Microsoft.Extensions.Hosting)
+- `src/MsgBakMan.Core` — domain models, phone normalization, fingerprinting
+- `src/MsgBakMan.Data` — SQLite + Dapper repositories, migrations, project-folder management
+- `src/MsgBakMan.ImportExport` — streaming XML import/export, media store
+- `installer/MsgBakMan.Installer` — WiX v6 MSI installer (built separately, not in `.sln`)
 - `tools/IconGen` — small tool for generating app icon assets
 
 ## Building the Installer
