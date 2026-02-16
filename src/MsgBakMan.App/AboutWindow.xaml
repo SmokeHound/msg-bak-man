@@ -51,18 +51,31 @@
                         </StackPanel>
                     </StackPanel>
 
-                    <Border DockPanel.Dock="Right"
-                            Background="{DynamicResource AccentSoftBrush}"
-                            CornerRadius="10"
-                            Padding="10,6"
-                            VerticalAlignment="Center">
-                        <TextBlock x:Name="VersionText"
-                                   Foreground="{DynamicResource AccentBrush}"
-                                   FontWeight="SemiBold" />
-                    </Border>
+                    <!-- Version moved below header -->
                 </DockPanel>
 
-                <TextBlock x:Name="RuntimeText" Margin="0,12,0,0" Style="{StaticResource MutedTextStyle}" TextWrapping="Wrap" />
+                <TextBlock x:Name="VersionText"
+                           Foreground="{DynamicResource AccentBrush}"
+                           FontWeight="SemiBold"
+                           HorizontalAlignment="Left"
+                           Margin="0,8,0,0" />
+
+                <TextBlock x:Name="RuntimeText" Margin="0,6,0,0" Style="{StaticResource MutedTextStyle}" TextWrapping="Wrap" />
+                <!-- Options -->
+                <Border Style="{StaticResource CardBorderStyle}" Margin="0,14,0,0" Padding="12">
+                    <StackPanel>
+                        <TextBlock Text="Options" Style="{StaticResource SectionHeaderTextStyle}" />
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,8,0,0">
+                            <CheckBox x:Name="EnableMaintenanceCheckBox"
+                                      Content="Enable maintenance actions"
+                                      Checked="EnableMaintenanceCheckBox_Checked"
+                                      Unchecked="EnableMaintenanceCheckBox_Unchecked" />
+                        </StackPanel>
+                        <TextBlock Margin="0,8,0,0" TextWrapping="Wrap" Style="{StaticResource MutedTextStyle}">
+                            When enabled, the Maintenance tab buttons are active. Disable to prevent accidental database changes.
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
 
                 <!-- Project -->
                 <Border x:Name="ProjectSection" Style="{StaticResource CardBorderStyle}" Margin="0,14,0,0" Padding="16">

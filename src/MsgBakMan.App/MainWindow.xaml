@@ -450,32 +450,49 @@
                                     Project-level maintenance operations. Each action may modify stored phone numbers and will rebuild conversation metadata where required. Use with caution.
                                 </TextBlock>
 
+                                <Border Margin="0,8,0,0" Padding="10" CornerRadius="6" Background="#FFFCE8E6" BorderBrush="OrangeRed" BorderThickness="1">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding AllowMaintenanceActions}" Value="True">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="⚠" FontSize="18" Margin="0,0,10,0" VerticalAlignment="Center" />
+                                        <TextBlock Text="Warning: Maintenance actions must be enabled from the About page (Options) before use." TextWrapping="Wrap" Foreground="#7A0000" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </Border>
+
                                 <!-- Repair legacy +10 numbers -->
                                 <TextBlock Text="Repair legacy +10 numbers" Style="{StaticResource SectionHeaderTextStyle}" Margin="0,12,0,0" />
                                 <TextBlock Margin="0,4,0,0" TextWrapping="Wrap" Style="{StaticResource MutedTextStyle}">
                                     Fixes normalized addresses that were incorrectly stored as "+10..." back to "+0..." and rebuilds conversation data.
                                 </TextBlock>
-                                <Button Content="Repair +10→+0" Style="{StaticResource SecondaryButtonStyle}"
-                                        Command="{Binding RepairPhoneNumbersCommand}"
-                                        IsEnabled="{Binding IsNotBusy}" Margin="0,8,0,0" />
+                                <Button x:Name="RepairMaintenanceButton" Content="Repair +10→+0" Style="{StaticResource SecondaryButtonStyle}"
+                                    Command="{Binding RepairPhoneNumbersCommand}"
+                                    IsEnabled="{Binding CanRunMaintenance}" Margin="0,8,0,0" />
 
                                 <!-- Remove spaces -->
                                 <TextBlock Text="Remove spaces from numbers" Style="{StaticResource SectionHeaderTextStyle}" Margin="0,12,0,0" />
                                 <TextBlock Margin="0,4,0,0" TextWrapping="Wrap" Style="{StaticResource MutedTextStyle}">
                                     Removes any spaces from stored phone numbers in `sms` and `mms_addr` tables (both raw and normalized forms).
                                 </TextBlock>
-                                <Button Content="Remove spaces" Style="{StaticResource SecondaryButtonStyle}"
-                                        Command="{Binding RemoveSpacesFromNumbersCommand}"
-                                        IsEnabled="{Binding IsNotBusy}" Margin="0,8,0,0" />
+                                <Button x:Name="RemoveSpacesButton" Content="Remove spaces" Style="{StaticResource SecondaryButtonStyle}"
+                                    Command="{Binding RemoveSpacesFromNumbersCommand}"
+                                    IsEnabled="{Binding CanRunMaintenance}" Margin="0,8,0,0" />
 
                                 <!-- Add +61 / remove leading 0 -->
                                 <TextBlock Text="Convert leading 0 to +61" Style="{StaticResource SectionHeaderTextStyle}" Margin="0,12,0,0" />
                                 <TextBlock Margin="0,4,0,0" TextWrapping="Wrap" Style="{StaticResource MutedTextStyle}">
                                     Prefixes "+61" and removes a single leading 0 from normalized addresses (e.g., "0412..." → "+61412..."). This may merge recipients and rebuild conversations.
                                 </TextBlock>
-                                <Button Content="Add +61 / remove leading 0" Style="{StaticResource SecondaryButtonStyle}"
-                                        Command="{Binding AddPlus61NumbersCommand}"
-                                        IsEnabled="{Binding IsNotBusy}" Margin="0,8,0,0" />
+                                <Button x:Name="AddPlus61Button" Content="Add +61 / remove leading 0" Style="{StaticResource SecondaryButtonStyle}"
+                                    Command="{Binding AddPlus61NumbersCommand}"
+                                    IsEnabled="{Binding CanRunMaintenance}" Margin="0,8,0,0" />
                             </StackPanel>
                         </Border>
                     </TabItem>

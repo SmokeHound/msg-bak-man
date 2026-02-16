@@ -29,6 +29,7 @@ public partial class MainViewModel : ObservableObject
         // Initialize from current theme without triggering a save.
         _isDarkTheme = ThemeManager.Current.ApplicationTheme == ApplicationTheme.Dark;
         _selectedAccentPalette = NormalizeAccentPalette(settings.AccentPalette);
+        _allowMaintenanceActions = settings.AllowMaintenanceActions;
     }
 
     [ObservableProperty]
@@ -78,6 +79,9 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private string _mergeSuggestionStatus = string.Empty;
 
+    [ObservableProperty]
+    private bool _allowMaintenanceActions;
+
     public ObservableCollection<ConversationListItem> Conversations { get; } = new();
     public ObservableCollection<MergeSuggestionItem> MergeSuggestions { get; } = new();
 
@@ -104,6 +108,8 @@ public partial class MainViewModel : ObservableObject
 
     public bool IsNotBusy => !IsBusy;
 
+    public bool CanRunMaintenance => IsNotBusy && AllowMaintenanceActions;
+
     public bool CanMergeCheckedIntoSelected => SelectedConversation is not null && Conversations.Any(c => c.IsChecked && c.ConversationId != SelectedConversation.ConversationId);
 
     partial void OnIsDarkThemeChanged(bool value)
@@ -113,7 +119,7 @@ public partial class MainViewModel : ObservableObject
             ThemeManager.Current.ApplicationTheme ?? ApplicationTheme.Light,
             SelectedAccentPalette);
 
-        AppSettingsStore.Save(new AppSettings(value ? "Dark" : "Light", SelectedAccentPalette));
+        AppSettingsStore.Save(new AppSettings(value ? "Dark" : "Light", SelectedAccentPalette, AllowMaintenanceActions));
     }
 
     partial void OnSelectedAccentPaletteChanged(string value)
@@ -129,7 +135,7 @@ public partial class MainViewModel : ObservableObject
             ThemeManager.Current.ApplicationTheme ?? ApplicationTheme.Light,
             SelectedAccentPalette);
 
-        AppSettingsStore.Save(new AppSettings(IsDarkTheme ? "Dark" : "Light", SelectedAccentPalette));
+        AppSettingsStore.Save(new AppSettings(IsDarkTheme ? "Dark" : "Light", SelectedAccentPalette, AllowMaintenanceActions));
     }
 
     private static string NormalizeAccentPalette(string? palette)
@@ -168,6 +174,14 @@ public partial class MainViewModel : ObservableObject
         AcceptMarkedMergesCommand.NotifyCanExecuteChanged();
         MarkAllMergeSuggestionsCommand.NotifyCanExecuteChanged();
         ClearMarkedMergeSuggestionsCommand.NotifyCanExecuteChanged();
+        OnPropertyChanged(nameof(CanRunMaintenance));
+    }
+
+    partial void OnAllowMaintenanceActionsChanged(bool value)
+    {
+        // Persist setting along with current theme/accent
+        AppSettingsStore.Save(new AppSettings(IsDarkTheme ? "Dark" : "Light", SelectedAccentPalette, value));
+        OnPropertyChanged(nameof(CanRunMaintenance));
     }
 
     partial void OnMarkedMergeCountChanged(int value)

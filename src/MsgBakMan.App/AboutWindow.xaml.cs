@@ -4,19 +4,24 @@ using System.Diagnostics;
 using System.IO;
 using System;
 using System.Windows;
+using MsgBakMan.App.ViewModels;
 using System.Windows.Input;
+using MsgBakMan.App.Services;
 
 namespace MsgBakMan.App;
 
 public partial class AboutWindow : Window
 {
     private readonly string? _projectFolder;
+    private readonly MainViewModel? _mainViewModel;
 
     public ICommand? RepairPhoneNumbersCommand { get; }
 
-    public AboutWindow(string? projectFolder, ICommand? repairPhoneNumbersCommand = null)
+    public AboutWindow(string? projectFolder, ICommand? repairPhoneNumbersCommand = null, MainViewModel? mainViewModel = null)
     {
         InitializeComponent();
+
+        _mainViewModel = mainViewModel;
 
         _projectFolder = string.IsNullOrWhiteSpace(projectFolder) ? null : projectFolder;
         RepairPhoneNumbersCommand = repairPhoneNumbersCommand is null
@@ -29,6 +34,24 @@ public partial class AboutWindow : Window
 
         VersionText.Text = $"Version {GetAppVersion()}";
         RuntimeText.Text = $"{RuntimeInformation.FrameworkDescription} • {RuntimeInformation.OSDescription}";
+
+        // Initialize maintenance checkbox from main view model or saved settings
+        try
+        {
+            if (_mainViewModel is not null)
+            {
+                EnableMaintenanceCheckBox.IsChecked = _mainViewModel.AllowMaintenanceActions;
+            }
+            else
+            {
+                var s = AppSettingsStore.Load();
+                EnableMaintenanceCheckBox.IsChecked = s.AllowMaintenanceActions;
+            }
+        }
+        catch
+        {
+            // ignore
+        }
 
         if (_projectFolder is null)
         {
@@ -55,6 +78,46 @@ public partial class AboutWindow : Window
             return informational;
 
         return assembly.GetName().Version?.ToString() ?? "unknown";
+    }
+
+    private void EnableMaintenanceCheckBox_Checked(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            if (_mainViewModel is not null)
+            {
+                _mainViewModel.AllowMaintenanceActions = true;
+            }
+            else
+            {
+                var s = AppSettingsStore.Load();
+                AppSettingsStore.Save(new AppSettings(s.Theme, s.AccentPalette, true));
+            }
+        }
+        catch
+        {
+            // swallow
+        }
+    }
+
+    private void EnableMaintenanceCheckBox_Unchecked(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            if (_mainViewModel is not null)
+            {
+                _mainViewModel.AllowMaintenanceActions = false;
+            }
+            else
+            {
+                var s = AppSettingsStore.Load();
+                AppSettingsStore.Save(new AppSettings(s.Theme, s.AccentPalette, false));
+            }
+        }
+        catch
+        {
+            // swallow
+        }
     }
 
     private void Ok_Click(object sender, RoutedEventArgs e)
