@@ -887,6 +887,58 @@ public partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private async Task RemoveSpacesFromNumbers()
+    {
+        await RunBusyAsync("Removing spaces from numbers...", ct =>
+        {
+            ct.ThrowIfCancellationRequested();
+
+            var paths = EnsureProjectInitialized();
+            using var conn = new SqliteConnectionFactory(paths.DbPath).Open();
+            new MigrationRunner().ApplyAll(conn);
+
+            var result = new PhoneNormalizationMaintenance(conn).RemoveSpacesFromNumbers();
+
+            AppendLog("Remove spaces complete:");
+            AppendLog($"- sms address_raw updated: {result.SmsRawUpdated:n0}");
+            AppendLog($"- mms_addr address_raw updated: {result.MmsAddrRawUpdated:n0}");
+            AppendLog($"- sms address_norm updated: {result.SmsNormUpdated:n0}");
+            AppendLog($"- mms_addr address_norm updated: {result.MmsAddrNormUpdated:n0}");
+
+            return Task.CompletedTask;
+        });
+
+        await RefreshConversations();
+        await RefreshMergeSuggestions();
+    }
+
+    [RelayCommand]
+    private async Task AddPlus61Numbers()
+    {
+        await RunBusyAsync("Converting leading 0 to +61...", ct =>
+        {
+            ct.ThrowIfCancellationRequested();
+
+            var paths = EnsureProjectInitialized();
+            using var conn = new SqliteConnectionFactory(paths.DbPath).Open();
+            new MigrationRunner().ApplyAll(conn);
+
+            var result = new PhoneNormalizationMaintenance(conn).AddPlus61RemoveLeading0Numbers();
+
+            AppendLog("+61 conversion complete:");
+            AppendLog($"- sms updated: {result.SmsUpdated:n0}");
+            AppendLog($"- mms_addr updated: {result.MmsAddrUpdated:n0}");
+            AppendLog($"- recipients updated: {result.RecipientsUpdated:n0}");
+            AppendLog($"- recipients merged: {result.RecipientsMerged:n0}");
+
+            return Task.CompletedTask;
+        });
+
+        await RefreshConversations();
+        await RefreshMergeSuggestions();
+    }
+
+    [RelayCommand]
     private async Task ApplySuggestedMerge(MergeSuggestionItem? suggestion)
     {
         if (suggestion is null)

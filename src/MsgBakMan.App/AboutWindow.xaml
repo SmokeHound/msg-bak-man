@@ -8,8 +8,10 @@
         ui:WindowHelper.UseModernWindowStyle="True"
         Title="About Message Backup Manager"
         WindowStartupLocation="CenterOwner"
-        ResizeMode="NoResize"
-        SizeToContent="WidthAndHeight"
+        ResizeMode="CanResizeWithGrip"
+        SizeToContent="Width"
+        MinWidth="420"
+        MinHeight="300"
     Background="{DynamicResource AppBackgroundBrush}"
     SnapsToDevicePixels="True"
     UseLayoutRounding="True"
@@ -20,7 +22,8 @@
             VerticalAlignment="Stretch"
             SnapsToDevicePixels="True">
         <Border Style="{StaticResource CardBorderStyle}" Padding="16">
-            <StackPanel Width="520">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" MaxHeight="640">
+                <StackPanel MaxWidth="720">
                 <!-- Header -->
                 <DockPanel LastChildFill="False">
                     <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
@@ -81,30 +84,13 @@
                     </StackPanel>
                 </Border>
 
-                <!-- Maintenance -->
-                <Border x:Name="MaintenanceSection" Style="{StaticResource CardBorderStyle}" Margin="0,14,0,0" Padding="16">
-                    <StackPanel>
-                        <TextBlock Text="Maintenance" Style="{StaticResource SectionHeaderTextStyle}" />
-                        <TextBlock Margin="0,4,0,0"
-                                   TextWrapping="Wrap"
-                                   Style="{StaticResource MutedTextStyle}">
-                            Repairs legacy phone numbers in the project DB (converts +10… to +0…).
-                        </TextBlock>
-
-                        <DockPanel Margin="0,12,0,0" LastChildFill="False">
-                            <Button x:Name="RepairPhoneNumbersButton"
-                                    DockPanel.Dock="Right"
-                                    Content="  Repair +10→+0  "
-                                    Style="{StaticResource SecondaryButtonStyle}"
-                                    Command="{Binding RepairPhoneNumbersCommand, RelativeSource={RelativeSource AncestorType=Window}}" />
-                        </DockPanel>
-                    </StackPanel>
-                </Border>
+                <!-- Maintenance section removed; use Maintenance tab in main window -->
 
                 <DockPanel Margin="0,16,0,0" LastChildFill="False">
                     <Button DockPanel.Dock="Right" Content="OK" Width="90" IsDefault="True" Style="{StaticResource PrimaryButtonStyle}" Click="Ok_Click" />
                 </DockPanel>
-            </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
         </Border>
     </Border>
 </Window>

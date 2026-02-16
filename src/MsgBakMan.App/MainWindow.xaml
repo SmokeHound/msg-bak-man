@@ -273,7 +273,9 @@
                                                           AlternationCount="2"
                                                           GridLinesVisibility="Horizontal"
                                                           VirtualizingPanel.IsVirtualizing="True"
-                                                          VirtualizingPanel.VirtualizationMode="Recycling">
+                                                          VirtualizingPanel.VirtualizationMode="Recycling"
+                                                          RowHeaderWidth="0"
+                                                          HeadersVisibility="Column">
                                                     <DataGrid.Columns>
                                                         <DataGridTextColumn Header="When" Binding="{Binding WhenLocal}" Width="170" />
                                                         <DataGridTextColumn Header="Type" Binding="{Binding Transport}" Width="70" />
@@ -326,7 +328,9 @@
                                                               AlternationCount="2"
                                                               GridLinesVisibility="Horizontal"
                                                               VirtualizingPanel.IsVirtualizing="True"
-                                                              VirtualizingPanel.VirtualizationMode="Recycling">
+                                                              VirtualizingPanel.VirtualizationMode="Recycling"
+                                                              RowHeaderWidth="0"
+                                                              HeadersVisibility="Column">
                                                         <DataGrid.Columns>
                                                             <DataGridTextColumn Header="When" Binding="{Binding WhenLocal}" Width="170" />
                                                             <DataGridTextColumn Header="Type" Binding="{Binding Transport}" Width="70" />
@@ -436,6 +440,44 @@
                                 </Border>
                             </Grid>
                         </Grid>
+                    </TabItem>
+
+                    <TabItem Header="Maintenance">
+                        <Border Padding="12">
+                            <StackPanel>
+                                <TextBlock Text="Maintenance" Style="{StaticResource SectionHeaderTextStyle}" />
+                                <TextBlock Margin="0,8,0,0" TextWrapping="Wrap" Style="{StaticResource MutedTextStyle}">
+                                    Project-level maintenance operations. Each action may modify stored phone numbers and will rebuild conversation metadata where required. Use with caution.
+                                </TextBlock>
+
+                                <!-- Repair legacy +10 numbers -->
+                                <TextBlock Text="Repair legacy +10 numbers" Style="{StaticResource SectionHeaderTextStyle}" Margin="0,12,0,0" />
+                                <TextBlock Margin="0,4,0,0" TextWrapping="Wrap" Style="{StaticResource MutedTextStyle}">
+                                    Fixes normalized addresses that were incorrectly stored as "+10..." back to "+0..." and rebuilds conversation data.
+                                </TextBlock>
+                                <Button Content="Repair +10→+0" Style="{StaticResource SecondaryButtonStyle}"
+                                        Command="{Binding RepairPhoneNumbersCommand}"
+                                        IsEnabled="{Binding IsNotBusy}" Margin="0,8,0,0" />
+
+                                <!-- Remove spaces -->
+                                <TextBlock Text="Remove spaces from numbers" Style="{StaticResource SectionHeaderTextStyle}" Margin="0,12,0,0" />
+                                <TextBlock Margin="0,4,0,0" TextWrapping="Wrap" Style="{StaticResource MutedTextStyle}">
+                                    Removes any spaces from stored phone numbers in `sms` and `mms_addr` tables (both raw and normalized forms).
+                                </TextBlock>
+                                <Button Content="Remove spaces" Style="{StaticResource SecondaryButtonStyle}"
+                                        Command="{Binding RemoveSpacesFromNumbersCommand}"
+                                        IsEnabled="{Binding IsNotBusy}" Margin="0,8,0,0" />
+
+                                <!-- Add +61 / remove leading 0 -->
+                                <TextBlock Text="Convert leading 0 to +61" Style="{StaticResource SectionHeaderTextStyle}" Margin="0,12,0,0" />
+                                <TextBlock Margin="0,4,0,0" TextWrapping="Wrap" Style="{StaticResource MutedTextStyle}">
+                                    Prefixes "+61" and removes a single leading 0 from normalized addresses (e.g., "0412..." → "+61412..."). This may merge recipients and rebuild conversations.
+                                </TextBlock>
+                                <Button Content="Add +61 / remove leading 0" Style="{StaticResource SecondaryButtonStyle}"
+                                        Command="{Binding AddPlus61NumbersCommand}"
+                                        IsEnabled="{Binding IsNotBusy}" Margin="0,8,0,0" />
+                            </StackPanel>
+                        </Border>
                     </TabItem>
 
                     <TabItem Header="Log">

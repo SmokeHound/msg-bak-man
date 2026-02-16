@@ -33,7 +33,6 @@ public partial class AboutWindow : Window
         if (_projectFolder is null)
         {
             ProjectSection.Visibility = Visibility.Collapsed;
-            MaintenanceSection.Visibility = Visibility.Collapsed;
         }
         else
         {
@@ -44,15 +43,6 @@ public partial class AboutWindow : Window
 
             OpenDbFolderButton.IsEnabled = Directory.Exists(dbFolder);
             OpenMediaFolderButton.IsEnabled = Directory.Exists(Path.Combine(_projectFolder, "media"));
-
-            if (RepairPhoneNumbersCommand is null)
-            {
-                MaintenanceSection.Visibility = Visibility.Collapsed;
-            }
-            else
-            {
-                RepairPhoneNumbersButton.IsEnabled = Directory.Exists(dbFolder);
-            }
         }
     }
 
