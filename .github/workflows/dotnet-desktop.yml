@@ -64,7 +64,7 @@ jobs:
           dotnet build "installer\MsgBakMan.Installer\MsgBakMan.Installer.wixproj" -c Release -v minimal
 
       - name: Upload Installer Artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: MsgBakMan-Installer
           path: installer/MsgBakMan.Installer/bin/x64/Release/*.msi
