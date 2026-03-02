@@ -63,7 +63,7 @@ jobs:
           dotnet pack "src\MsgBakMan.ImportExport\MsgBakMan.ImportExport.csproj" -c Release --no-restore -p:PackageVersion=${{ steps.version.outputs.version }}
 
       - name: Upload Packages Artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: nupkg-${{ steps.version.outputs.version }}
           path: |
