@@ -65,7 +65,7 @@ jobs:
           dotnet build "installer\MsgBakMan.Installer\MsgBakMan.Installer.wixproj" -c Release -v minimal -p:Version=${{ steps.get_version.outputs.version }}
 
       - name: Create Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ steps.get_version.outputs.tag }}
           target_commitish: ${{ github.sha }}
